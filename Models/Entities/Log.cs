@@ -9,10 +9,12 @@
 
 namespace Models.Entities
 {
+    using Models.Extensions;
+    using Models.Interfaces;
     using System;
     using System.Collections.Generic;
     
-    public partial class Log
+    public partial class Log : ExtensionLog,  IEntityWithId
     {
         public System.Guid ID { get; set; }
         public Nullable<double> RxPower { get; set; }
