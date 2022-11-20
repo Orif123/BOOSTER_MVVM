@@ -1,0 +1,30 @@
+﻿<mah:MetroWindow x:Class="Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:ipack="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        mc:Ignorable="d"
+        Title="EW1600-250 V1.0.2" Height="720" Width="1280">
+    <mah:MetroWindow.RightWindowCommands>
+        <mah:WindowCommands>
+            <ToggleButton Cursor="Hand" IsChecked="{Binding ElementName=flyout, Path=IsOpen}">
+                <StackPanel Orientation="Horizontal">
+                    <ipack:PackIconMaterial Height="17" Kind="ThemeLightDark" />
+                    <TextBlock Margin="3,0,0,0" VerticalAlignment="Center" FontSize="15" Text="APPEARANCE" />
+                </StackPanel>
+            </ToggleButton>
+        </mah:WindowCommands>
+    </mah:MetroWindow.RightWindowCommands>
+    <mah:MetroWindow.Flyouts>
+        <mah:FlyoutsControl>
+            <!--<mah:Flyout x:Name="flyout"
+                             Width="270"
+                             BorderThickness="1,0,0,0" Header="APPEARANCE" Position="Right" Theme="Adapt">
+                <views:StyleView />
+            </mah:Flyout>-->
+        </mah:FlyoutsControl>
+    </mah:MetroWindow.Flyouts>
+    <ContentControl Content="{Binding SelectedViewModel}"/>
+</mah:MetroWindow>

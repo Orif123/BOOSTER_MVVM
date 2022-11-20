@@ -1,0 +1,116 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib" 
+                    xmlns:CircularGauge="clr-namespace:EXT.CircularGauge;assembly=EXT.CircularGauge"
+                    
+                    >
+
+    <sys:Double x:Key="MahApps.Font.Size.FloatingWatermark">13</sys:Double>
+
+    <Color x:Key="App.Color.Gray">#CC888888</Color>
+    <Color x:Key="App.Color.Green">#CC43A047</Color>
+    <Color x:Key="App.Color.Red">#CCE53935</Color>
+    <Color x:Key="App.Color.Orange">#CCFF9800</Color>
+    <Color x:Key="App.Color.Yellow">#CCFFB74D</Color>
+    <Color x:Key="App.Color.Blue">#CC1E88E5</Color>
+
+    <SolidColorBrush x:Key="App.Brushes.Gray" Color="{StaticResource App.Color.Gray}"/>
+    <SolidColorBrush x:Key="App.Brushes.Green" Color="{StaticResource App.Color.Green}"/>
+    <SolidColorBrush x:Key="App.Brushes.Red" Color="{StaticResource App.Color.Red}"/>
+    <SolidColorBrush x:Key="App.Brushes.Orange" Color="{StaticResource App.Color.Orange}"/>
+    <SolidColorBrush x:Key="App.Brushes.Yellow" Color="{StaticResource App.Color.Yellow}"/>
+    <SolidColorBrush x:Key="App.Brushes.Blue" Color="{StaticResource App.Color.Blue}"/>
+
+    <SolidColorBrush x:Key="AppGray" Color="#CC888888" />
+    <SolidColorBrush x:Key="AppGreen" Color="#CC43A047" />
+    <SolidColorBrush x:Key="AppRed" Color="#CCE53935" />
+    <SolidColorBrush x:Key="AppOrange" Color="#CCFF9800" />
+    <SolidColorBrush x:Key="AppYellow" Color="#CCFFB74D" />
+    <SolidColorBrush x:Key="AppBlue" Color="#CC1E88E5" />
+    <CircularGauge:BackgroundColorConverter x:Key="backgroundColorConverter" />
+    <CircularGauge:RadiusToDiameterConverter x:Key="radiusToDiameterConverter"/>
+    <CircularGauge:SizeConverter x:Key="sizeConverter" />
+    <CircularGauge:ImageOffsetConverter x:Key="imageOffsetConverter" />
+    <CircularGauge:ColorToSolidColorBrushConverter x:Key="colorToSolidColorBrushConverter" />
+    <CircularGauge:RangeIndicatorLightPositionConverter x:Key="rangeIndicatorLightPositionConverter"/>
+    <CircularGauge:PointerCenterConverter x:Key="pointerCenterConverter"/>
+    <CircularGauge:GlassEffectWidthConverter x:Key="glassEffectWidthConverter" />
+    <Style x:Key="GaugeStyle" TargetType="{x:Type CircularGauge:CircularGaugeControl}" >
+        <Setter Property="ResetPointerOnStartUp" Value="True" />
+        <Setter Property="ScaleValuePrecision" Value="5" />
+        <Setter Property="RangeIndicatorThickness" Value="5"/>
+        <Setter Property="DialTextFontSize" Value="8" />
+
+        <Setter Property="Template" >
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type CircularGauge:CircularGaugeControl}">
+                    <!-- Root Grid-->
+                    <Grid x:Name="LayoutRoot" 
+        						Height="{Binding Radius, Converter={StaticResource radiusToDiameterConverter}, RelativeSource={RelativeSource TemplatedParent}}" 
+        						Width="{Binding Radius, Converter={StaticResource radiusToDiameterConverter}, RelativeSource={RelativeSource TemplatedParent}}" >
+
+                        <Ellipse x:Name="OuterFrame" StrokeThickness="16"  Visibility="Collapsed"
+        							Height="{Binding Radius, Converter={StaticResource radiusToDiameterConverter}, RelativeSource={RelativeSource TemplatedParent}}" 
+        							Width="{Binding Radius, Converter={StaticResource radiusToDiameterConverter}, RelativeSource={RelativeSource TemplatedParent}}" 
+        							Fill="{x:Null}" />
+
+                        <!-- Gauge Image -->
+                        <Image Source="{TemplateBinding ImageSource}" Visibility="Collapsed" 
+        							Width="{Binding ImageSize, ConverterParameter=Width, Converter={StaticResource sizeConverter}, RelativeSource={RelativeSource TemplatedParent}}"                             
+        							Height="{Binding ImageSize, ConverterParameter=Height, Converter={StaticResource sizeConverter}, RelativeSource={RelativeSource TemplatedParent}}"                              
+        							RenderTransform="{Binding ImageOffset, Converter={StaticResource imageOffsetConverter}, RelativeSource={RelativeSource TemplatedParent}}"/>
+
+                        <!-- Dial Text -->
+                        <TextBlock Text="{TemplateBinding DialText}"  
+        							HorizontalAlignment="Center" VerticalAlignment="Center"  
+        							Foreground="{Binding DialTextColor, Converter={StaticResource colorToSolidColorBrushConverter}, RelativeSource={RelativeSource TemplatedParent}}"
+        							FontSize="{TemplateBinding DialTextFontSize}"                             
+                                                         
+        							RenderTransform="{Binding DialTextOffset, Converter={StaticResource rangeIndicatorLightPositionConverter}, RelativeSource={RelativeSource TemplatedParent}}"/>
+
+                        <!-- Pointer -->
+                        <Path x:Name="Pointer" 
+                              Stroke="#FF807E7E" 
+                              StrokeThickness="2" 
+    						  Width="{TemplateBinding PointerLength}" 
+    						  Height="{TemplateBinding PointerThickness}" HorizontalAlignment="Center"
+    						  Data="M1,1 L1,1 L150,1 z" Stretch="Fill"  RenderTransformOrigin="0,0.3" 
+    						  RenderTransform="{Binding PointerLength, Converter={StaticResource pointerCenterConverter}, RelativeSource={RelativeSource TemplatedParent}}" 
+                              Fill="#FF807E7E"/>
+
+                        <!--Pointer Cap-->
+                        <Ellipse x:Name="PointerCap" 
+                                 Height="{TemplateBinding PointerCapRadius}" 
+                                 Width="{TemplateBinding PointerCapRadius}"  
+                                 Fill="{DynamicResource MahApps.Brushes.Menu.Background}"
+                                 Stroke="#FF807E7E" 
+                                 StrokeThickness="2"/>
+
+                        <!--Range indicator light-->
+                        <Ellipse x:Name="RangeIndicatorLight" Visibility="Collapsed"
+        							Height="{Binding RangeIndicatorLightRadius, Converter={StaticResource radiusToDiameterConverter}, RelativeSource={RelativeSource TemplatedParent}}" 
+        							Width="{Binding RangeIndicatorLightRadius, Converter={StaticResource radiusToDiameterConverter}, RelativeSource={RelativeSource TemplatedParent}}"                              
+        							RenderTransform="{Binding RangeIndicatorLightOffset, Converter={StaticResource rangeIndicatorLightPositionConverter}, RelativeSource={RelativeSource TemplatedParent}}" 
+                                 Fill="#FFA9A6A6">
+                            <!--Range indicator light off position effect-->
+                        </Ellipse>
+
+                        <!--Glass effect ellipse-->
+                        <Path x:Name="GlassEffect" StrokeThickness="1" Stretch="Fill" VerticalAlignment="Bottom" Visibility="Collapsed"
+        							Height="{TemplateBinding Radius}"
+        							Width="{Binding Radius, Converter={StaticResource glassEffectWidthConverter}, RelativeSource={RelativeSource TemplatedParent}}" 
+        							Opacity="0.18" Data="M265.99997,151.00005 C263.99994,194.00003 209.55908,259 135.00064,259 C60.442207,259 11,200.00003 5.9999995,157.00005 C5.0181994,148.55656 73.000877,112.00006 137.00053,112.00007 C199.00887,112.00008 266.72015,135.5164 265.99997,151.00005 z" 
+                              Fill="#FFA68686"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="TitleBlockStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.ThemeForeground}" />
+        <Setter Property="FontWeight" Value="Medium" />
+    </Style>
+    </ResourceDictionary>
