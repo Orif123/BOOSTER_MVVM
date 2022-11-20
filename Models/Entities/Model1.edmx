@@ -38,6 +38,9 @@
           <Property Name="TempMinWar" Type="float" />
           <Property Name="TempMaxWar" Type="float" />
           <Property Name="DeadlineDate" Type="datetime" />
+          <Property Name="TxModeMinFix" Type="float" />
+          <Property Name="TxModeMinWar" Type="float" />
+          <Property Name="TxModeMaxWar" Type="float" />
         </EntityType>
         <EntityType Name="Log">
           <Key>
@@ -53,6 +56,8 @@
           <Property Name="CapturingDate" Type="datetime" />
           <Property Name="AmplifierId" Type="uniqueidentifier" />
           <Property Name="SettingId" Type="uniqueidentifier" />
+          <Property Name="TxMode" Type="float" />
+          <Property Name="SelectedFilter" Type="int" />
         </EntityType>
         <EntityType Name="sysdiagrams">
           <Key>
@@ -223,6 +228,9 @@
           <NavigationProperty Name="Amplifiers" Relationship="Self.FK_Amplifier_GeneralSetting" FromRole="GeneralSetting" ToRole="Amplifier" />
           <NavigationProperty Name="Logs" Relationship="Self.FK_Log_GeneralSetting" FromRole="GeneralSetting" ToRole="Log" />
           <Property Name="DeadlineDate" Type="DateTime" Precision="3" />
+          <Property Name="TxModeMinFix" Type="Double" />
+          <Property Name="TxModeMinWar" Type="Double" />
+          <Property Name="TxModeMaxWar" Type="Double" />
         </EntityType>
         <EntityType Name="Log">
           <Key>
@@ -241,6 +249,8 @@
           <NavigationProperty Name="Amplifier" Relationship="Self.FK_Log_Amplifier" FromRole="Log" ToRole="Amplifier" />
           <NavigationProperty Name="GeneralSetting" Relationship="Self.FK_Log_GeneralSetting" FromRole="Log" ToRole="GeneralSetting" />
           <NavigationProperty Name="User" Relationship="Self.FK_Log_User" FromRole="Log" ToRole="User" />
+          <Property Name="TxMode" Type="Double" />
+          <Property Name="SelectedFilter" Type="Int32" />
         </EntityType>
         <EntityType Name="sysdiagram">
           <Key>
@@ -336,8 +346,6 @@
             <End Role="Log" EntitySet="Logs" />
           </AssociationSet>
           <FunctionImport Name="GetAmplifiers" EntitySet="Amplifiers" ReturnType="Collection(BoosterModel.Amplifier)" />
-          <FunctionImport Name="GetLogs" EntitySet="Logs" ReturnType="Collection(BoosterModel.Log)" />
-          <FunctionImport Name="GetSettings" EntitySet="GeneralSettings" ReturnType="Collection(BoosterModel.GeneralSetting)" />
           <FunctionImport Name="GetUser" EntitySet="Users" ReturnType="Collection(BoosterModel.User)" />
           <FunctionImport Name="sp_alterdiagram">
             <Parameter Name="diagramname" Mode="In" Type="String" />
@@ -369,6 +377,8 @@
             <Parameter Name="new_diagramname" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="sp_upgraddiagrams" />
+          <FunctionImport Name="GetLogs" ReturnType="Collection(BoosterModel.GetLogs_Result)" />
+          <FunctionImport Name="GetSettings" ReturnType="Collection(BoosterModel.GetSettings_Result)" />
         </EntityContainer>
         <ComplexType Name="GetAmplifiers_Result">
           <Property Type="Guid" Name="ID" Nullable="false" />
@@ -377,37 +387,6 @@
           <Property Type="Int32" Name="Port" Nullable="true" />
           <Property Type="Boolean" Name="Enabled" Nullable="true" />
           <Property Type="Guid" Name="SettingId" Nullable="true" />
-        </ComplexType>
-        <ComplexType Name="GetLogs_Result">
-          <Property Type="Guid" Name="ID" Nullable="false" />
-          <Property Type="Double" Name="RxPower" Nullable="true" />
-          <Property Type="Double" Name="RxSensitivity" Nullable="true" />
-          <Property Type="Double" Name="TxPower" Nullable="true" />
-          <Property Type="Double" Name="TxSensitivity" Nullable="true" />
-          <Property Type="Double" Name="Temprature" Nullable="true" />
-          <Property Type="Guid" Name="UserId" Nullable="true" />
-          <Property Type="DateTime" Name="CapturingDate" Nullable="true" Precision="23" />
-          <Property Type="Guid" Name="AmplifierId" Nullable="true" />
-          <Property Type="Guid" Name="SettingId" Nullable="true" />
-        </ComplexType>
-        <ComplexType Name="GetSettings_Result">
-          <Property Type="Guid" Name="ID" Nullable="false" />
-          <Property Type="Double" Name="CapturingMinute" Nullable="true" />
-          <Property Type="Double" Name="RxPowerMinFix" Nullable="true" />
-          <Property Type="Double" Name="RxPowerMinWar" Nullable="true" />
-          <Property Type="Double" Name="RxPowerMaxWar" Nullable="true" />
-          <Property Type="Double" Name="RxSensMinFix" Nullable="true" />
-          <Property Type="Double" Name="RxSensMinWar" Nullable="true" />
-          <Property Type="Double" Name="RxSensMaxWar" Nullable="true" />
-          <Property Type="Double" Name="TxPowerMinFix" Nullable="true" />
-          <Property Type="Double" Name="TxPowerMinWar" Nullable="true" />
-          <Property Type="Double" Name="TxPowerMaxWar" Nullable="true" />
-          <Property Type="Double" Name="TxSensMinFix" Nullable="true" />
-          <Property Type="Double" Name="TxSensMinWar" Nullable="true" />
-          <Property Type="Double" Name="TxSensMaxWar" Nullable="true" />
-          <Property Type="Double" Name="TempMinFix" Nullable="true" />
-          <Property Type="Double" Name="TempMinWar" Nullable="true" />
-          <Property Type="Double" Name="TempMaxWar" Nullable="true" />
         </ComplexType>
         <ComplexType Name="GetUser_Result">
           <Property Type="Guid" Name="ID" Nullable="false" />
@@ -428,6 +407,43 @@
           <Property Type="Int32" Name="ID" Nullable="false" />
           <Property Type="String" Name="Owner" Nullable="true" MaxLength="128" />
           <Property Type="Int32" Name="OwnerID" Nullable="false" />
+        </ComplexType>
+        <ComplexType Name="GetLogs_Result">
+          <Property Type="Guid" Name="ID" Nullable="false" />
+          <Property Type="Double" Name="RxPower" Nullable="true" />
+          <Property Type="Double" Name="RxSensitivity" Nullable="true" />
+          <Property Type="Double" Name="TxPower" Nullable="true" />
+          <Property Type="Double" Name="TxSensitivity" Nullable="true" />
+          <Property Type="Double" Name="Temprature" Nullable="true" />
+          <Property Type="Guid" Name="UserId" Nullable="true" />
+          <Property Type="DateTime" Name="CapturingDate" Nullable="true" Precision="23" />
+          <Property Type="Guid" Name="AmplifierId" Nullable="true" />
+          <Property Type="Guid" Name="SettingId" Nullable="true" />
+          <Property Type="Double" Name="TxMode" Nullable="true" />
+          <Property Type="Int32" Name="SelectedFilter" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="GetSettings_Result">
+          <Property Type="Guid" Name="ID" Nullable="false" />
+          <Property Type="Double" Name="CapturingMinute" Nullable="true" />
+          <Property Type="Double" Name="RxPowerMinFix" Nullable="true" />
+          <Property Type="Double" Name="RxPowerMinWar" Nullable="true" />
+          <Property Type="Double" Name="RxPowerMaxWar" Nullable="true" />
+          <Property Type="Double" Name="RxSensMinFix" Nullable="true" />
+          <Property Type="Double" Name="RxSensMinWar" Nullable="true" />
+          <Property Type="Double" Name="RxSensMaxWar" Nullable="true" />
+          <Property Type="Double" Name="TxPowerMinFix" Nullable="true" />
+          <Property Type="Double" Name="TxPowerMinWar" Nullable="true" />
+          <Property Type="Double" Name="TxPowerMaxWar" Nullable="true" />
+          <Property Type="Double" Name="TxSensMinFix" Nullable="true" />
+          <Property Type="Double" Name="TxSensMinWar" Nullable="true" />
+          <Property Type="Double" Name="TxSensMaxWar" Nullable="true" />
+          <Property Type="Double" Name="TempMinFix" Nullable="true" />
+          <Property Type="Double" Name="TempMinWar" Nullable="true" />
+          <Property Type="Double" Name="TempMaxWar" Nullable="true" />
+          <Property Type="DateTime" Name="DeadlineDate" Nullable="true" Precision="23" />
+          <Property Type="Double" Name="TxModeMinFix" Nullable="true" />
+          <Property Type="Double" Name="TxModeMinWar" Nullable="true" />
+          <Property Type="Double" Name="TxModeMaxWar" Nullable="true" />
         </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
@@ -450,6 +466,9 @@
           <EntitySetMapping Name="GeneralSettings">
             <EntityTypeMapping TypeName="BoosterModel.GeneralSetting">
               <MappingFragment StoreEntitySet="GeneralSetting">
+                <ScalarProperty Name="TxModeMaxWar" ColumnName="TxModeMaxWar" />
+                <ScalarProperty Name="TxModeMinWar" ColumnName="TxModeMinWar" />
+                <ScalarProperty Name="TxModeMinFix" ColumnName="TxModeMinFix" />
                 <ScalarProperty Name="DeadlineDate" ColumnName="DeadlineDate" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="CapturingMinute" ColumnName="CapturingMinute" />
@@ -474,6 +493,8 @@
           <EntitySetMapping Name="Logs">
             <EntityTypeMapping TypeName="BoosterModel.Log">
               <MappingFragment StoreEntitySet="Log">
+                <ScalarProperty Name="SelectedFilter" ColumnName="SelectedFilter" />
+                <ScalarProperty Name="TxMode" ColumnName="TxMode" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="RxPower" ColumnName="RxPower" />
                 <ScalarProperty Name="RxSensitivity" ColumnName="RxSensitivity" />
@@ -513,10 +534,6 @@
           </EntitySetMapping>
           <FunctionImportMapping FunctionImportName="GetAmplifiers" FunctionName="BoosterModel.Store.GetAmplifiers">
           </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="GetLogs" FunctionName="BoosterModel.Store.GetLogs">
-          </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="GetSettings" FunctionName="BoosterModel.Store.GetSettings">
-          </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="GetUser" FunctionName="BoosterModel.Store.GetUser">
           </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="sp_alterdiagram" FunctionName="BoosterModel.Store.sp_alterdiagram" />
@@ -543,6 +560,51 @@
           </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="sp_renamediagram" FunctionName="BoosterModel.Store.sp_renamediagram" />
           <FunctionImportMapping FunctionImportName="sp_upgraddiagrams" FunctionName="BoosterModel.Store.sp_upgraddiagrams" />
+          <FunctionImportMapping FunctionImportName="GetLogs" FunctionName="BoosterModel.Store.GetLogs">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="BoosterModel.GetLogs_Result">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="RxPower" ColumnName="RxPower" />
+                <ScalarProperty Name="RxSensitivity" ColumnName="RxSensitivity" />
+                <ScalarProperty Name="TxPower" ColumnName="TxPower" />
+                <ScalarProperty Name="TxSensitivity" ColumnName="TxSensitivity" />
+                <ScalarProperty Name="Temprature" ColumnName="Temprature" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="CapturingDate" ColumnName="CapturingDate" />
+                <ScalarProperty Name="AmplifierId" ColumnName="AmplifierId" />
+                <ScalarProperty Name="SettingId" ColumnName="SettingId" />
+                <ScalarProperty Name="TxMode" ColumnName="TxMode" />
+                <ScalarProperty Name="SelectedFilter" ColumnName="SelectedFilter" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetSettings" FunctionName="BoosterModel.Store.GetSettings">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="BoosterModel.GetSettings_Result">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="CapturingMinute" ColumnName="CapturingMinute" />
+                <ScalarProperty Name="RxPowerMinFix" ColumnName="RxPowerMinFix" />
+                <ScalarProperty Name="RxPowerMinWar" ColumnName="RxPowerMinWar" />
+                <ScalarProperty Name="RxPowerMaxWar" ColumnName="RxPowerMaxWar" />
+                <ScalarProperty Name="RxSensMinFix" ColumnName="RxSensMinFix" />
+                <ScalarProperty Name="RxSensMinWar" ColumnName="RxSensMinWar" />
+                <ScalarProperty Name="RxSensMaxWar" ColumnName="RxSensMaxWar" />
+                <ScalarProperty Name="TxPowerMinFix" ColumnName="TxPowerMinFix" />
+                <ScalarProperty Name="TxPowerMinWar" ColumnName="TxPowerMinWar" />
+                <ScalarProperty Name="TxPowerMaxWar" ColumnName="TxPowerMaxWar" />
+                <ScalarProperty Name="TxSensMinFix" ColumnName="TxSensMinFix" />
+                <ScalarProperty Name="TxSensMinWar" ColumnName="TxSensMinWar" />
+                <ScalarProperty Name="TxSensMaxWar" ColumnName="TxSensMaxWar" />
+                <ScalarProperty Name="TempMinFix" ColumnName="TempMinFix" />
+                <ScalarProperty Name="TempMinWar" ColumnName="TempMinWar" />
+                <ScalarProperty Name="TempMaxWar" ColumnName="TempMaxWar" />
+                <ScalarProperty Name="DeadlineDate" ColumnName="DeadlineDate" />
+                <ScalarProperty Name="TxModeMinFix" ColumnName="TxModeMinFix" />
+                <ScalarProperty Name="TxModeMinWar" ColumnName="TxModeMinWar" />
+                <ScalarProperty Name="TxModeMaxWar" ColumnName="TxModeMaxWar" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

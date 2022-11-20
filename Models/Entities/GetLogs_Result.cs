@@ -23,5 +23,7 @@ namespace Models.Entities
         public Nullable<System.DateTime> CapturingDate { get; set; }
         public Nullable<System.Guid> AmplifierId { get; set; }
         public Nullable<System.Guid> SettingId { get; set; }
+        public Nullable<double> TxMode { get; set; }
+        public Nullable<int> SelectedFilter { get; set; }
     }
 }

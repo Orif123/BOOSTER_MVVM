@@ -9,11 +9,10 @@
 
 namespace Models.Entities
 {
-    using Models.Interfaces;
     using System;
     using System.Collections.Generic;
     
-    public partial class Log :  Extensions.ExtensionLog, IEntityWithId
+    public partial class Log
     {
         public System.Guid ID { get; set; }
         public Nullable<double> RxPower { get; set; }
@@ -25,6 +24,8 @@ namespace Models.Entities
         public Nullable<System.DateTime> CapturingDate { get; set; }
         public Nullable<System.Guid> AmplifierId { get; set; }
         public Nullable<System.Guid> SettingId { get; set; }
+        public Nullable<double> TxMode { get; set; }
+        public Nullable<int> SelectedFilter { get; set; }
     
         public virtual Amplifier Amplifier { get; set; }
         public virtual GeneralSetting GeneralSetting { get; set; }

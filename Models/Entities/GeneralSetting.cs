@@ -9,11 +9,10 @@
 
 namespace Models.Entities
 {
-    using Models.Interfaces;
     using System;
     using System.Collections.Generic;
     
-    public partial class GeneralSetting : IEntityWithId
+    public partial class GeneralSetting
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public GeneralSetting()
@@ -40,6 +39,9 @@ namespace Models.Entities
         public Nullable<double> TempMinWar { get; set; }
         public Nullable<double> TempMaxWar { get; set; }
         public Nullable<System.DateTime> DeadlineDate { get; set; }
+        public Nullable<double> TxModeMinFix { get; set; }
+        public Nullable<double> TxModeMinWar { get; set; }
+        public Nullable<double> TxModeMaxWar { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Amplifier> Amplifiers { get; set; }
