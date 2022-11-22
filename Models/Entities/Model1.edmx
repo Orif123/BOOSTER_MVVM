@@ -377,8 +377,8 @@
             <Parameter Name="new_diagramname" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="sp_upgraddiagrams" />
-          <FunctionImport Name="GetLogs" ReturnType="Collection(BoosterModel.GetLogs_Result)" />
-          <FunctionImport Name="GetSettings" ReturnType="Collection(BoosterModel.GetSettings_Result)" />
+          <FunctionImport Name="GetLogs" EntitySet="Logs" ReturnType="Collection(BoosterModel.Log)" />
+          <FunctionImport Name="GetSettings" EntitySet="GeneralSettings" ReturnType="Collection(BoosterModel.GeneralSetting)" />
         </EntityContainer>
         <ComplexType Name="GetAmplifiers_Result">
           <Property Type="Guid" Name="ID" Nullable="false" />
@@ -561,49 +561,8 @@
           <FunctionImportMapping FunctionImportName="sp_renamediagram" FunctionName="BoosterModel.Store.sp_renamediagram" />
           <FunctionImportMapping FunctionImportName="sp_upgraddiagrams" FunctionName="BoosterModel.Store.sp_upgraddiagrams" />
           <FunctionImportMapping FunctionImportName="GetLogs" FunctionName="BoosterModel.Store.GetLogs">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="BoosterModel.GetLogs_Result">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="RxPower" ColumnName="RxPower" />
-                <ScalarProperty Name="RxSensitivity" ColumnName="RxSensitivity" />
-                <ScalarProperty Name="TxPower" ColumnName="TxPower" />
-                <ScalarProperty Name="TxSensitivity" ColumnName="TxSensitivity" />
-                <ScalarProperty Name="Temprature" ColumnName="Temprature" />
-                <ScalarProperty Name="UserId" ColumnName="UserId" />
-                <ScalarProperty Name="CapturingDate" ColumnName="CapturingDate" />
-                <ScalarProperty Name="AmplifierId" ColumnName="AmplifierId" />
-                <ScalarProperty Name="SettingId" ColumnName="SettingId" />
-                <ScalarProperty Name="TxMode" ColumnName="TxMode" />
-                <ScalarProperty Name="SelectedFilter" ColumnName="SelectedFilter" />
-              </ComplexTypeMapping>
-            </ResultMapping>
           </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="GetSettings" FunctionName="BoosterModel.Store.GetSettings">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="BoosterModel.GetSettings_Result">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="CapturingMinute" ColumnName="CapturingMinute" />
-                <ScalarProperty Name="RxPowerMinFix" ColumnName="RxPowerMinFix" />
-                <ScalarProperty Name="RxPowerMinWar" ColumnName="RxPowerMinWar" />
-                <ScalarProperty Name="RxPowerMaxWar" ColumnName="RxPowerMaxWar" />
-                <ScalarProperty Name="RxSensMinFix" ColumnName="RxSensMinFix" />
-                <ScalarProperty Name="RxSensMinWar" ColumnName="RxSensMinWar" />
-                <ScalarProperty Name="RxSensMaxWar" ColumnName="RxSensMaxWar" />
-                <ScalarProperty Name="TxPowerMinFix" ColumnName="TxPowerMinFix" />
-                <ScalarProperty Name="TxPowerMinWar" ColumnName="TxPowerMinWar" />
-                <ScalarProperty Name="TxPowerMaxWar" ColumnName="TxPowerMaxWar" />
-                <ScalarProperty Name="TxSensMinFix" ColumnName="TxSensMinFix" />
-                <ScalarProperty Name="TxSensMinWar" ColumnName="TxSensMinWar" />
-                <ScalarProperty Name="TxSensMaxWar" ColumnName="TxSensMaxWar" />
-                <ScalarProperty Name="TempMinFix" ColumnName="TempMinFix" />
-                <ScalarProperty Name="TempMinWar" ColumnName="TempMinWar" />
-                <ScalarProperty Name="TempMaxWar" ColumnName="TempMaxWar" />
-                <ScalarProperty Name="DeadlineDate" ColumnName="DeadlineDate" />
-                <ScalarProperty Name="TxModeMinFix" ColumnName="TxModeMinFix" />
-                <ScalarProperty Name="TxModeMinWar" ColumnName="TxModeMinWar" />
-                <ScalarProperty Name="TxModeMaxWar" ColumnName="TxModeMaxWar" />
-              </ComplexTypeMapping>
-            </ResultMapping>
           </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>

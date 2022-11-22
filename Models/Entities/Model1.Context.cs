@@ -156,14 +156,24 @@ namespace Models.Entities
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("sp_upgraddiagrams");
         }
     
-        public virtual ObjectResult<GetLogs_Result> GetLogs()
+        public virtual ObjectResult<Log> GetLogs()
         {
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetLogs_Result>("GetLogs");
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Log>("GetLogs");
         }
     
-        public virtual ObjectResult<GetSettings_Result> GetSettings()
+        public virtual ObjectResult<Log> GetLogs(MergeOption mergeOption)
         {
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetSettings_Result>("GetSettings");
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Log>("GetLogs", mergeOption);
+        }
+    
+        public virtual ObjectResult<GeneralSetting> GetSettings()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GeneralSetting>("GetSettings");
+        }
+    
+        public virtual ObjectResult<GeneralSetting> GetSettings(MergeOption mergeOption)
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GeneralSetting>("GetSettings", mergeOption);
         }
     }
 }
