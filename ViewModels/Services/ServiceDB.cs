@@ -23,7 +23,7 @@ namespace ViewModels.Services
 
                     var entityList = db.Set<T>();
 
-                    var origin = entityList.SingleOrDefault(p => p.ID == entity.ID);
+                    var origin = entityList.SingleOrDefault(p => p.ID.ToString() == entity.ID.ToString());
                     if (origin != null)
                     {
 

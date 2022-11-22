@@ -142,11 +142,7 @@
                             <local1:BoosterView />
                         </mah:HamburgerMenuIconItem.Tag>
                     </mah:HamburgerMenuIconItem>
-                    <mah:HamburgerMenuIconItem Icon="{ipack:Material Kind=CogBox, Height=22, Width=22}" Label="Settings">
-                        <mah:HamburgerMenuIconItem.Tag>
-                            <local1:SettingsView />
-                        </mah:HamburgerMenuIconItem.Tag>
-                    </mah:HamburgerMenuIconItem>
+                    
                     <mah:HamburgerMenuIconItem Icon="{ipack:Material Kind=FileDocument, Height=22, Width=22}" Label="Log">
                         <mah:HamburgerMenuIconItem.Tag>
                             <local1:LogView />

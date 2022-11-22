@@ -4,14 +4,13 @@ using Models.DTO;
 using Models.Entities;
 using Models.Enums;
 using Models.Extensions;
+using Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using ViewModels.Communication;
@@ -34,7 +33,33 @@ namespace ViewModels.ViewModels
 
         public ChartValues<double> SelectedDetectorGraph { get; set; }
 
+        private GeneralSetting _selSetting;
 
+        public GeneralSetting SelSetting
+        {
+            get { return _selSetting; }
+            set { _selSetting = value; OnPropertyChanged(nameof(SelSetting)); }
+        }
+
+
+        private Visibility _newAmpVisibillity = Visibility.Collapsed;
+
+        public Visibility NewAmpVisibillity
+        {
+            get { return _newAmpVisibillity; }
+            set 
+            {
+                _newAmpVisibillity = value; 
+                OnPropertyChanged(nameof(NewAmpVisibillity)); 
+            }
+        }
+        private Visibility _changeSetVisibillity = Visibility.Collapsed;
+
+        public Visibility ChangeSetVisibillity
+        {
+            get { return _changeSetVisibillity; }
+            set { _changeSetVisibillity = value; OnPropertyChanged(nameof(ChangeSetVisibillity)); }
+        }
 
         public bool CanSave
         {
@@ -70,10 +95,14 @@ namespace ViewModels.ViewModels
                 if (value is null)
                     _selectedamplifier = DB.Amplifiers.First();
                 _selectedamplifier = value;
-
                 OnPropertyChanged(nameof(SelectedAmplifier));
+                OnPropertyChanged(nameof(SelSetting));
             }
         }
+        private Amplifier _newAmplifier;
+
+        
+
         public Graph Graph { get; set; }
         public RelayCommand Loaded { get; set; }
         public RelayCommand Unloaded { get; set; }
@@ -85,11 +114,17 @@ namespace ViewModels.ViewModels
         public RelayCommand SaveData { get; set; }
         public RelayCommand StartGraph { get; set; }
         public RelayCommand CancelGraph { get; set; }
+        public RelayCommand NewAmp { get; set; }
+        public RelayCommand ChangeSet { get; set; }
+        public RelayCommand  CancelNewAmp { get; set; }
+        public RelayCommand CancelChangeSet { get; set; }
         public BoosterViewModel(IDialogCoordinator instance)
         {
-
+            
             Graph = new Graph();
             SelectedDetectorGraph = new ChartValues<double>();
+            SelSetting = DB.Settings.FirstOrDefault();
+
             coordinator = instance;
 
             AmpCollection = CollectionViewSource.GetDefaultView(ServiceDB.UpdateUI(Amplifiers));
@@ -105,6 +140,10 @@ namespace ViewModels.ViewModels
             SaveData = new RelayCommand(OnSaveData, CanSaveData);
             StartGraph = new RelayCommand(OnStartGraph, CanStartGraph);
             CancelGraph = new RelayCommand(OnCancel);
+            NewAmp = new RelayCommand(OnNewAmp);
+            ChangeSet = new RelayCommand(OnChangeSet);
+            CancelNewAmp = new RelayCommand(OnCancelNewAmp);
+            CancelChangeSet = new RelayCommand(OnCancelChangeSet);
 
             start_worker = new BackgroundWorker();
             start_worker.DoWork += Start_worker_DoWork;
@@ -130,6 +169,34 @@ namespace ViewModels.ViewModels
             graph_worker.WorkerSupportsCancellation = true;
         }
 
+        private void OnCancelChangeSet(object parameter)
+        {
+            ChangeSetVisibillity = Visibility.Collapsed;
+            Graph.IsMainUnabled = true;
+
+
+        }
+
+        private void OnCancelNewAmp()
+        {
+            NewAmpVisibillity = Visibility.Collapsed;
+            Graph.IsMainUnabled = true ;
+
+        }
+
+        private void OnNewAmp(object parameter)
+        {
+            NewAmpVisibillity = Visibility.Visible;
+            Graph.IsMainUnabled = false;
+            SelectedAmplifier = new Amplifier();
+        }
+
+        private void OnChangeSet(object parameter)
+        {
+            ChangeSetVisibillity = Visibility.Visible;
+            Graph.IsMainUnabled = false;
+        }
+
         private bool CanStartGraph()
         {
             return true;
@@ -137,9 +204,9 @@ namespace ViewModels.ViewModels
         private void OnCancel()
         {
             Graph.ShowGraph = Visibility.Collapsed;
-            Graph.IsMainUnabled = true;
             if (graph_worker.IsBusy)
                 graph_worker.CancelAsync();
+            Graph.IsMainUnabled = true;
         }
         private void OnStartGraph(object parameter)
         {
@@ -155,6 +222,7 @@ namespace ViewModels.ViewModels
             var logList = DB.Logs.Where(p => p.AmplifierId.ToString() == SelectedAmplifier.ID.ToString()).ToList();
             while (!worker.CancellationPending)
             {
+                Graph.IsMainUnabled = false;
                 Graph.ShowGraph = Visibility.Visible;
                 switch (selectedDetector)
                 {
@@ -246,12 +314,32 @@ namespace ViewModels.ViewModels
 
         private void Savedata_worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            var amp = (Amplifier)e.Argument;
-            var numberEntities = ServiceDB.AddOrUpdate(amp);
+            var entity = (IEntityWithId)e.Argument;
+            int numberEntities = 0;
+            if (entity != null)
+            {
+                if(entity is Amplifier)
+                        numberEntities = ServiceDB.AddOrUpdate(entity as Amplifier);
+                else
+                    numberEntities = ServiceDB.AddOrUpdate(entity as GeneralSetting);
+
+            }
+            else
+            {
+                if (SelectedAmplifier.IP != null && SelectedAmplifier.Port != null && SelectedAmplifier.Name != null && !DB.Amplifiers.Any(P=>P.Name == SelectedAmplifier.Name))
+                {
+                    SelectedAmplifier.ID = Guid.NewGuid();
+                    SelectedAmplifier.SettingId = DB.Settings.SingleOrDefault().ID;
+                    numberEntities = ServiceDB.AddOrUpdate(SelectedAmplifier);
+                }
+                else
+                    ShowMessageAsync("ERROR", "DATA CANNOT BE EMPTY", MessageDialogStyle.Affirmative);
+            }
+
             e.Result = new List<object>
             {
                 numberEntities,
-                amp
+                entity
             };
         }
 
@@ -259,12 +347,15 @@ namespace ViewModels.ViewModels
         {
             var list = (List<object>)e.Result;
             int resultNum = (int)list[0];
-            Amplifier amp = (Amplifier)list[1];
+            var entity = (IEntityWithId)list[1];
+
             if (resultNum > 0)
-                ShowMessageAsync("Succeeded", String.Format("{0} Saved {1} changes succesfully to the Database", amp, resultNum), MessageDialogStyle.Affirmative);
+                ShowMessageAsync("Succeeded", String.Format("{0} Saved {1} changes succesfully to the Database", entity, resultNum), MessageDialogStyle.Affirmative);
             else
                 ShowMessageAsync("Failed", "No changes saved to the database", MessageDialogStyle.Affirmative);
+            ServiceDB.UpdateUI(Amplifiers);
             AmpCollection.Refresh();
+            
         }
 
 
@@ -419,15 +510,18 @@ namespace ViewModels.ViewModels
 
         private void OnSaveData(object parameter)
         {
-
-            var amp = SelectedAmplifier;
-            if (amp != null)
-                savedata_worker.RunWorkerAsync(amp);
+            if (parameter != null)
+            {
+                var entity = (IEntityWithId)parameter;
+                if (entity != null)
+                    savedata_worker.RunWorkerAsync(entity);
+            }
+            else
+                savedata_worker.RunWorkerAsync();
         }
 
         private void OnTxOff(object parameter)
         {
-
             var amplifier = SelectedAmplifier;
             if (amplifier != null)
                 start_worker.RunWorkerAsync(new List<object> { amplifier, "#TXOFF" });
@@ -468,7 +562,7 @@ namespace ViewModels.ViewModels
         }
         private async void ShowMessageAsync(string title, string message, MessageDialogStyle style)
         {
-            await coordinator.ShowMessageAsync(this, title, message, style, new MetroDialogSettings { AnimateShow = false });
+            await coordinator.ShowMessageAsync(this, title, message, style, new MetroDialogSettings {AnimateShow = true });
         }
         private double AverageFilter(double value, int index, Queue<double> queue)
         {
@@ -482,6 +576,5 @@ namespace ViewModels.ViewModels
                 result += item;
             return Math.Round(result / index, 2);
         }
-
     }
 }

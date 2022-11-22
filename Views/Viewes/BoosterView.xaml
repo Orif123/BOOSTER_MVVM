@@ -7,9 +7,12 @@
              xmlns:gauge="clr-namespace:EXT.CircularGauge;assembly=EXT.CircularGauge"
              xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
              Dialog:DialogParticipation.Register="{Binding}"
-             xmlns:local="clr-namespace:Views.Viewes" xmlns:ipack="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:diag="http://mindfusion.eu/diagramming/wpf" xmlns:viewmodels="clr-namespace:ViewModels.ViewModels;assembly=ViewModels" xmlns:ChartToolKit="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf" d:DataContext="{d:DesignInstance Type=viewmodels:BoosterViewModel}"
+             xmlns:local="clr-namespace:Views.Viewes" xmlns:ipack="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:diag="http://mindfusion.eu/diagramming/wpf" xmlns:viewmodels="clr-namespace:ViewModels.ViewModels;assembly=ViewModels" xmlns:ChartToolKit="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf" xmlns:local1="clr-namespace:Views.Converters" d:DataContext="{d:DesignInstance Type=viewmodels:BoosterViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <local1:BoolToColorConverter x:Key="BoolToColorConverter"/>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"/>
@@ -17,31 +20,40 @@
         </Grid.ColumnDefinitions>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="4*"/>
+                
             </Grid.ColumnDefinitions>
-            <ListView Grid.Column="0" Margin="5,5, 0, 5" IsHitTestVisible="{Binding Graph.IsMainUnabled}" ItemsSource="{Binding Amplifiers}" SelectedItem="{Binding SelectedAmplifier}" >
+            <ListView Grid.Column="0" Margin="5,5, 0, 5" IsEnabled="{Binding Graph.IsMainUnabled}" ItemsSource="{Binding Amplifiers}" SelectedItem="{Binding SelectedAmplifier}" >
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Row="0" Grid.Column="0">
                                 <StackPanel  Orientation="Horizontal" HorizontalAlignment="Left">
-                                    <TextBlock Text="{Binding Name, StringFormat={}Name : {0}}" TextAlignment="Center" FontWeight="Bold"  Foreground="{DynamicResource App.Brushes.Yellow}"  FontSize="23"/>
+                                    <TextBlock Text="{Binding Name, StringFormat={}Name : {0}}" TextAlignment="Center" FontWeight="Bold"  Foreground="{DynamicResource App.Brushes.Yellow}"  FontSize="21"/>
                                 </StackPanel>
                                 <StackPanel  Orientation="Horizontal" HorizontalAlignment="Left">
-                                    <TextBlock Text="{Binding IP, StringFormat={}IP : {0}}" FontSize="18" Foreground="Black" Opacity="0.7">
+                                    <TextBlock Text="{Binding IP, StringFormat={}IP : {0}}" FontSize="18"  Opacity="0.7">
                                         <TextBlock.ToolTip>
                                             <ToolTip mah:ControlsHelper.ContentCharacterCasing="Upper" Content="Country" FontSize="14" />
                                         </TextBlock.ToolTip>
                                     </TextBlock>
                                 </StackPanel>
+                                <StackPanel  Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Temprature, StringFormat={}Temprature : {0} ℃}" TextAlignment="Center" FontWeight="Bold"   FontSize="18"/>
+                                </StackPanel>
                             </StackPanel>
-                            <ipack:PackIconMaterial Width="50" Height="29" Kind="Amplifier" Grid.Column="1" VerticalAlignment="Stretch" Margin="0,0,3,0" />
+                            <StackPanel Orientation="Horizontal" Grid.Column="1">
+                                
+                            <ipack:PackIconMaterial Width="50" Height="29" Foreground="{Binding Pinging, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource App.Brushes.Green}}" Kind="Amplifier" Grid.Column="1" VerticalAlignment="Stretch" Margin="0,0,3,0" />
+                            <ipack:PackIconMaterial Width="50" Height="29" Foreground="{Binding Running, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource App.Brushes.Red}}" Kind="Radioactive" Grid.Column="1" VerticalAlignment="Stretch" Margin="0,0,3,0" />
+                            </StackPanel>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -72,7 +84,7 @@
                         </ChartToolKit:CartesianChart.AxisX>
 
                         <ChartToolKit:CartesianChart.AxisY>
-                            <ChartToolKit:Axis Title="(W)"
+                            <ChartToolKit:Axis Title="dbm"
                          FontSize="15"
                          FontWeight="Bold"
                           />
@@ -83,9 +95,137 @@
                     </StackPanel>
                 </Grid>
             </Border>
-
-
-            <Border Background="{DynamicResource MahApps.Brushes.Menu.Background}" IsHitTestVisible="{Binding Graph.IsMainUnabled}"  Margin="5,5, 0, 5" Grid.Column="1">
+            <Border Grid.Column="1" Height="500" Width="700" BorderBrush="Black" BorderThickness="2" Panel.ZIndex="1"  Background="{DynamicResource MahApps.Brushes.Badged.Background.Disabled}"  Visibility="{Binding NewAmpVisibillity}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="3*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="ADD AMPLIFIER" Foreground="{DynamicResource MahApps.Brushes.Menu.Background}" FontWeight="DemiBold" HorizontalAlignment="Stretch" FontFamily="Vrinda" VerticalAlignment="Stretch" TextAlignment="Center" FontSize="58"/>
+                    <StackPanel Grid.Row="1" HorizontalAlignment="Left" Margin="30, 0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="IP:" FontSize="33" Padding="9"/>
+                            <TextBox Text="{Binding SelectedAmplifier.IP}" mah:TextBoxHelper.Watermark="IP" Margin="5,0" Height="20" BorderThickness="1.5" Width="100" mah:TextBoxHelper.ClearTextButton="True" mah:TextBoxHelper.UseFloatingWatermark="False"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="PORT:" FontSize="33" Padding="9"/>
+                            <TextBox Text="{Binding SelectedAmplifier.Port}" mah:TextBoxHelper.Watermark="PORT" Margin="10,0" Height="20" BorderThickness="1.5" Width="100" mah:TextBoxHelper.ClearTextButton="True" mah:TextBoxHelper.UseFloatingWatermark="False"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="NAME:" FontSize="33" Padding="9"/>
+                            <TextBox Text="{Binding SelectedAmplifier.Name}" mah:TextBoxHelper.Watermark="NAME" Margin="10,0" Height="20" BorderThickness="1.5" Width="100" mah:TextBoxHelper.ClearTextButton="True" mah:TextBoxHelper.UseFloatingWatermark="False"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="ENABLED:" FontSize="33" Padding="9"/>
+                            <CheckBox Height="20" IsChecked="{Binding SelectedAmplifier.Enabled}"/>
+                        </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0, 20">
+                        <Button Content="ADD" Command="{Binding SaveData}" />
+                        <Button Content="CANCEL" Command="{Binding CancelNewAmp}" Margin="10,0" />
+                    </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="1" Grid.ColumnSpan="3" Height="880" Width="750" BorderBrush="Black" BorderThickness="2" Panel.ZIndex="1"  Background="{DynamicResource MahApps.Brushes.Badged.Background.Disabled}"  Visibility="{Binding ChangeSetVisibillity}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="0.5*"/>
+                        <RowDefinition Height="3.9*"/>
+                        <RowDefinition Height="0.8*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="CHANGE SETTINGS" Foreground="{DynamicResource MahApps.Brushes.Menu.Background}" FontWeight="DemiBold" HorizontalAlignment="Stretch" FontFamily="Vrinda" VerticalAlignment="Stretch" TextAlignment="Center" FontSize="58"/>
+                    <StackPanel Grid.Row="1">
+                            <StackPanel.Resources>
+                                <Style TargetType="{x:Type StackPanel}">
+                                    <Setter Property="Margin" Value="15"/>
+                                </Style>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Margin" Value="0,0,10,0"/>
+                                    <Setter Property="FontSize" Value="22"/>
+                                <Setter Property="Width" Value="150"/>
+                            </Style>
+                                <Style TargetType="{x:Type TextBox}">
+                                    <Setter Property="Height" Value="30"/>
+                                    <Setter Property="Width" Value="100"/>
+                                    <Setter Property="mah:TextBoxHelper.ClearTextButton" Value="True"/>
+                                    <Setter Property="BorderThickness" Value="1.5"/>
+                                <Setter Property="Margin" Value="10,0"/>
+                            </Style>
+                            </StackPanel.Resources>
+                        <GroupBox BorderBrush="Black" BorderThickness="1">
+                            <GroupBox.Header>
+                                <UniformGrid Rows="1" HorizontalAlignment="Left" Width="230">
+                                    <ipack:PackIconMaterial Kind="HomeAnalytics" Width="17" Height="15"  VerticalAlignment="Center" Foreground="White" />
+                                    <TextBlock Text="LIMITS" FontSize="16" Margin="-100,0,0,0"/>
+                                </UniformGrid>
+                            </GroupBox.Header>
+                            <StackPanel >
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="TX FWD"/>
+                                <TextBox Text="{Binding SelSetting.TxPowerMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
+                                <TextBox Text="{Binding SelSetting.TxPowerMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                <TextBox Text="{Binding SelSetting.TxPowerMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="TX REV"/>
+                            <TextBox Text="{Binding SelSetting.TxSensMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
+                            <TextBox Text="{Binding SelSetting.TxSensMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                            <TextBox Text="{Binding SelSetting.TxSensMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                        </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="TX MODE"/>
+                                <TextBox Text="{Binding SelSetting.TxModeMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
+                                <TextBox Text="{Binding SelSetting.TxModeMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                <TextBox Text="{Binding SelSetting.TxModeMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="RX PRE"/>
+                                <TextBox Text="{Binding SelSetting.RxPowerMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
+                                <TextBox Text="{Binding SelSetting.RxPowerMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                <TextBox Text="{Binding SelSetting.RxPowerMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="RX DET"/>
+                                <TextBox Text="{Binding SelSetting.RxSensMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
+                                <TextBox Text="{Binding SelSetting.RxSensMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                <TextBox Text="{Binding SelSetting.RxSensMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                            </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="TEMPERATURE"/>
+                                    <TextBox Text="{Binding SelSetting.TempMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
+                                    <TextBox Text="{Binding SelSetting.TempMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                    <TextBox Text="{Binding SelSetting.TempMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                </StackPanel>
+                            </StackPanel>                        
+                        </GroupBox>
+                        <GroupBox BorderBrush="Black" BorderThickness="1">
+                            <GroupBox.Header>
+                                <UniformGrid Rows="1" HorizontalAlignment="Left" Width="230">
+                                    <ipack:PackIconMaterial Kind="OpenInApp" Width="17" Height="15"  VerticalAlignment="Center" Foreground="White" />
+                                    <TextBlock Text="GENERAL SETTINGS" FontSize="16" Margin="-100,0,0,0"/>
+                                </UniformGrid>
+                            </GroupBox.Header>
+                            <StackPanel >
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="CAPTURING"/>
+                                    <mah:NumericUpDown Value="{Binding SelSetting.CapturingMinute}" FontSize="17" mah:TextBoxHelper.Watermark="Capturing Interval" />
+                                    <TextBox Text="{Binding SelSetting.DeadlineDate}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="STOP"/>
+                                    <mah:ToggleSwitch IsOn="{Binding ToCrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 20" Grid.Row="2">
+                                    <Button Content="SAVE CHANGES" Command="{Binding SaveData}" CommandParameter="{Binding SelSetting}" Height="60" Width="150" Style="{DynamicResource MahApps.Styles.Button}" />
+                        <Button Content="CANCEL" Command="{Binding CancelChangeSet}" Height="60" Width="150" Style="{DynamicResource MahApps.Styles.Button}" Margin="10,0" />
+                                </StackPanel>
+                </Grid>
+            </Border>
+            <Border Background="{DynamicResource MahApps.Brushes.Menu.Background}" IsEnabled="{Binding Graph.IsMainUnabled}"  Margin="5,5, 0, 5" Grid.Column="1">
                 <Grid>
                     <Grid.Resources>
                         <Style TargetType="Button">
@@ -108,7 +248,10 @@
                         <RowDefinition Height="2*"/>
                         <RowDefinition Height="2*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="System Indicators" FontWeight="DemiBold" HorizontalAlignment="Stretch" FontFamily="Vrinda" VerticalAlignment="Stretch" TextAlignment="Center" FontSize="58"/>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Stretch" Orientation="Horizontal">
+                        <TextBlock Text="{Binding SelectedAmplifier.Name}" FontWeight="DemiBold"  FontFamily="Vrinda"   FontSize="58" Foreground="{DynamicResource App.Brushes.Red}"/>
+                        <TextBlock Text="System Indicators" FontWeight="DemiBold" Margin="15,0" FontFamily="Vrinda"  FontSize="58"/>
+                    </StackPanel>
                     <Border Grid.Row="1" BorderBrush="Gray" Opacity="1" BorderThickness="1" Margin="20">
                     <Grid  Width="650" Height="600" Margin="15">
                         
@@ -172,7 +315,7 @@
                             </Grid> 
                     </Grid>
                     </Border>
-                    <Grid  Margin="10" Grid.Column="1" Grid.Row="3" IsHitTestVisible="{Binding Graph.IsMainUnabled}">
+                    <Grid  Margin="10" Grid.Column="1" Grid.Row="3" IsEnabled="{Binding Graph.IsMainUnabled}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition  />
@@ -199,9 +342,9 @@
 
 
                         <gauge:CircularGaugeControl Grid.Row="2" Grid.Column="0" Style="{DynamicResource GaugeStyle}" 
-                                                            CurrentValue="{Binding SelectedAmplifier.RxPower}"
-                                                            OptimalRangeStartValue="10"                                      
-                                                            OptimalRangeEndValue="20"
+                                                            CurrentValue="{Binding SelectedAmplifier.TxPower}"
+                                                            OptimalRangeStartValue="{Binding SelSetting.TxPowerMinFix}"                                      
+                                                            OptimalRangeEndValue="{Binding SelSetting.TxPowerMinWar}"
                                                             
                                                                                                                        
                                                            
@@ -215,17 +358,17 @@
                                                             PointerLength="37" 
                                                             PointerCapRadius="11"
                                                             PointerThickness ="3"
-                                                            MinValue="10" 
-                                                            MaxValue="40" 
+                                                            MinValue="{Binding SelSetting.TxPowerMinFix}" 
+                                                            MaxValue="{Binding SelSetting.TxPowerMaxWar}" 
                                                             MajorDivisionsCount="6" 
                                                             RangeIndicatorThickness="8"
                                                             RangeIndicatorRadius="50"
                                                             ScaleLabelFontSize="12"
                                                             DialTextOffset="45" DialText="FWD" FontSize="16"/>
                         <gauge:CircularGaugeControl Grid.Row="2" Grid.Column="1" Style="{DynamicResource GaugeStyle}" 
-                                                            CurrentValue="{Binding SelectedAmplifier.RxPower}"
-                                                            OptimalRangeStartValue="10"                                      
-                                                            OptimalRangeEndValue="20"
+                                                            CurrentValue="{Binding SelectedAmplifier.TxSensitivity}"
+                                                            OptimalRangeStartValue="{Binding SelSetting.TxPowerMinFix}"                                      
+                                                            OptimalRangeEndValue="{Binding SelSetting.TxPowerMinWar}"
                                                             
                                                             DialTextColor="{DynamicResource MahApps.Colors.ThemeForeground}"
                                                             BelowOptimalRangeColor="{StaticResource App.Color.Green}"
@@ -238,8 +381,8 @@
                                                             PointerLength="37" 
                                                             PointerCapRadius="11"
                                                             PointerThickness ="3"
-                                                            MinValue="10" 
-                                                            MaxValue="40" 
+                                                            MinValue="{Binding SelSetting.TxPowerMinFix}" 
+                                                            MaxValue="{Binding SelSetting.TxPowerMaxWar}" 
                                                             MajorDivisionsCount="6" 
                                                             RangeIndicatorThickness="8"
                                                             RangeIndicatorRadius="50"
@@ -319,7 +462,7 @@
                 </Grid>
             </Border>
         </Grid>
-        <Grid Grid.Column="2" Height="auto" Width="auto">
+        <Grid Grid.Column="2" Height="auto" Width="auto" IsEnabled="{Binding Graph.IsMainUnabled}">
             <Border Background="{DynamicResource MahApps.Brushes.Menu.Background}" Margin="5,5, 0, 5" >
                 <StackPanel>
                     <TextBlock Text="Amplifier Settings" FontWeight="DemiBold" HorizontalAlignment="Stretch" FontFamily="Vrinda" VerticalAlignment="Stretch" TextAlignment="Center" FontSize="58"/>
@@ -390,7 +533,7 @@
                             </StackPanel>
                         </Grid>
                     </GroupBox>
-                    <GroupBox Margin="12" Width="auto" Height="auto" IsEnabled="False" BorderThickness="2" BorderBrush="LightGray" Opacity="1">
+                    <!--<GroupBox Margin="12" Width="auto" Height="auto" IsEnabled="False" BorderThickness="2" BorderBrush="LightGray" Opacity="1">
                         <GroupBox.Header>
                             <StackPanel Orientation="Horizontal">
                                 <ipack:PackIconMaterial Kind="Engine" Width="17" Height="17" Margin="2,0,3,0" VerticalAlignment="Center" Foreground="White" />
@@ -400,16 +543,32 @@
                         <Grid>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Minuete:" FontSize="22" Padding="9"/>
-                                <TextBox Text="{Binding SelectedAmplifier.GeneralSetting.CapturingMinute}" mah:TextBoxHelper.Watermark="Minuete" Margin="10,0" Height="12" BorderThickness="1.5" Width="100" mah:TextBoxHelper.ClearTextButton="True" mah:TextBoxHelper.UseFloatingWatermark="False"/>
+                                <TextBox Text="{Binding SelSetting.CapturingMinute}" mah:TextBoxHelper.Watermark="Minuete" Margin="10,0" Height="12" BorderThickness="1.5" Width="100" mah:TextBoxHelper.ClearTextButton="True" mah:TextBoxHelper.UseFloatingWatermark="False"/>
                                 <TextBlock Text="DEADLINE:" FontSize="22" Padding="9"/>
-                                <DatePicker Text="{Binding SelectedAmplifier.GeneralSetting.DeadlineDate}"  Margin="10,0" Height="12" BorderThickness="1.5" Width="130" mah:TextBoxHelper.ClearTextButton="True" mah:TextBoxHelper.UseFloatingWatermark="False"/>
+                                <DatePicker Text="{Binding SelSetting.DeadlineDate}"  Margin="10,0" Height="12" BorderThickness="1.5" Width="130" mah:TextBoxHelper.ClearTextButton="True" mah:TextBoxHelper.UseFloatingWatermark="False"/>
                             </StackPanel>
                             
                         </Grid>
+                    </GroupBox>-->
+                    <GroupBox Margin="12">
+                        <GroupBox.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ipack:PackIconMaterial Kind="Engine" Width="17" Height="17" Margin="2,0,3,0" VerticalAlignment="Center" Foreground="White" />
+                                <TextBlock Text="ACTIONS" FontSize="14" />
+                            </StackPanel>
+                        </GroupBox.Header>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        
+                        <Button Content="SAVE CHANGES" FontSize="13" Height="60" Style="{DynamicResource MahApps.Styles.Button}" Margin="70"  Background="{DynamicResource App.Brushes.Blue}" Command="{Binding SaveData}" CommandParameter="{Binding SelectedAmplifier}"/>
+                        <Button Content="ADD AMPLIFIER" FontSize="13" Height="60" Style="{DynamicResource MahApps.Styles.Button}" Margin="70"  Background="{DynamicResource App.Brushes.Orange}" Command="{Binding NewAmp}" CommandParameter="{Binding ChangeSetVisibillity}"/>
+                        <Button Content="EDIT SETTINGS" FontSize="13" Height="60" Style="{DynamicResource MahApps.Styles.Button}" Margin="70"  Background="{DynamicResource AppRed}" Command="{Binding ChangeSet}" CommandParameter="{Binding NewAmpVisibillity}"/>
+
+                        </StackPanel>
                     </GroupBox>
-                    <Button Content="SAVE CHANGES" FontSize="13" Style="{DynamicResource MahApps.Styles.Button}" Margin="70"  Background="{DynamicResource App.Brushes.Blue}" Command="{Binding SaveData}" CommandParameter="{Binding SelectedAmplifier.SelFilter}"/>
+                    
                 </StackPanel>
             </Border>
+            
         </Grid>
     </Grid>
 </UserControl>

@@ -259,6 +259,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\BoolToColorConverter.cs" />
     <Compile Include="Viewes\BoosterView.xaml.cs">
       <DependentUpon>BoosterView.xaml</DependentUpon>
     </Compile>

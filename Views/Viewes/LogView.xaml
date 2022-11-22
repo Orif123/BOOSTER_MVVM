@@ -6,10 +6,13 @@
                xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
                xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
                Dialog:DialogParticipation.Register="{Binding}"
-               xmlns:ipack="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:viewmodels="clr-namespace:ViewModels.ViewModels;assembly=ViewModels" xmlns:ChartToolKit="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf" d:DataContext="{d:DesignInstance Type=viewmodels:LogViewModel}"
+               xmlns:ipack="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:viewmodels="clr-namespace:ViewModels.ViewModels;assembly=ViewModels" xmlns:ChartToolKit="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf" xmlns:local1="clr-namespace:Views.Converters" d:DataContext="{d:DesignInstance Type=viewmodels:LogViewModel}"
                mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+   
     <UserControl.Resources>
+        <local1:BoolToColorConverter x:Key="BoolToColorConverter"/>
+
         <SolidColorBrush x:Key="GotFocusColor" Color="Green" />
 
         <Style TargetType="{x:Type Button}">
@@ -42,7 +45,7 @@
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="1.3*"/>
             <ColumnDefinition Width="4*"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
@@ -90,29 +93,36 @@
                 </StackPanel>
             </Grid>
         </Border>
-        <ListView Grid.Column="0" Margin="5,5, 0, 5" IsHitTestVisible="{Binding Graph.IsMainUnabled}" ItemsSource="{Binding Amplifiers}" SelectedItem="{Binding SelectedAmplifier}" >
-
+        <ListView Grid.Column="0" Margin="5,5, 0, 5" IsEnabled="{Binding Graph.IsMainUnabled}" ItemsSource="{Binding Amplifiers}" SelectedItem="{Binding SelectedAmplifier}" >
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Row="0" Grid.Column="0">
                             <StackPanel  Orientation="Horizontal" HorizontalAlignment="Left">
-                                <TextBlock Text="{Binding Name, StringFormat={}Name : {0}}" TextAlignment="Center" FontWeight="Bold"  Foreground="{DynamicResource App.Brushes.Yellow}"  FontSize="23"/>
+                                <TextBlock Text="{Binding Name, StringFormat={}Name : {0}}" TextAlignment="Center" FontWeight="Bold"  Foreground="{DynamicResource App.Brushes.Yellow}"  FontSize="21"/>
                             </StackPanel>
                             <StackPanel  Orientation="Horizontal" HorizontalAlignment="Left">
-                                <TextBlock Text="{Binding IP, StringFormat={}IP : {0}}" FontSize="18" Foreground="Black" Opacity="0.7">
+                                <TextBlock Text="{Binding IP, StringFormat={}IP : {0}}" FontSize="18"  Opacity="0.7">
                                     <TextBlock.ToolTip>
                                         <ToolTip mah:ControlsHelper.ContentCharacterCasing="Upper" Content="Country" FontSize="14" />
                                     </TextBlock.ToolTip>
                                 </TextBlock>
                             </StackPanel>
+                            <StackPanel  Orientation="Horizontal" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding Temprature, StringFormat={}Temprature : {0} ℃}" TextAlignment="Center" FontWeight="Bold"   FontSize="18"/>
+                            </StackPanel>
                         </StackPanel>
-                        <ipack:PackIconMaterial Width="50" Height="29" Kind="Amplifier" Grid.Column="1" VerticalAlignment="Stretch" Margin="0,0,3,0" />
+                        <StackPanel Orientation="Horizontal" Grid.Column="1">
+
+                            <ipack:PackIconMaterial Width="50" Height="29" Foreground="{Binding Pinging, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource App.Brushes.Green}}" Kind="Amplifier" Grid.Column="1" VerticalAlignment="Stretch" Margin="0,0,3,0" />
+                            <ipack:PackIconMaterial Width="50" Height="29" Foreground="{Binding Running, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource App.Brushes.Red}}" Kind="Radioactive" Grid.Column="1" VerticalAlignment="Stretch" Margin="0,0,3,0" />
+                        </StackPanel>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
