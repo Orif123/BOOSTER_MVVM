@@ -38,12 +38,12 @@ namespace Models.Entities
         public Nullable<double> TempMinFix { get; set; }
         public Nullable<double> TempMinWar { get; set; }
         public Nullable<double> TempMaxWar { get; set; }
-        public Nullable<System.DateTime> DeadlineDate { get; set; }
         public Nullable<double> TxModeMinFix { get; set; }
         public Nullable<double> TxModeMinWar { get; set; }
         public Nullable<double> TxModeMaxWar { get; set; }
         public Nullable<bool> Crush { get; set; }
         public Nullable<int> RemovingInterval { get; set; }
+        public Nullable<System.DateTime> DeadlineDate { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Amplifier> Amplifiers { get; set; }
