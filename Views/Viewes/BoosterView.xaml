@@ -138,21 +138,30 @@
                     <StackPanel Grid.Row="1">
                             <StackPanel.Resources>
                                 <Style TargetType="{x:Type StackPanel}">
-                                    <Setter Property="Margin" Value="15"/>
+                                    <Setter Property="Margin" Value="10"/>
                                 </Style>
                                 <Style TargetType="{x:Type TextBlock}">
                                     <Setter Property="Margin" Value="0,0,10,0"/>
                                     <Setter Property="FontSize" Value="22"/>
                                 <Setter Property="Width" Value="150"/>
                             </Style>
-                                <Style TargetType="{x:Type TextBox}">
+                            <Style TargetType="{x:Type mah:NumericUpDown}" >
                                     <Setter Property="Height" Value="30"/>
                                     <Setter Property="Width" Value="100"/>
                                     <Setter Property="mah:TextBoxHelper.ClearTextButton" Value="True"/>
                                     <Setter Property="BorderThickness" Value="1.5"/>
+                                
+                                    
                                 <Setter Property="Margin" Value="10,0"/>
                             </Style>
-                            </StackPanel.Resources>
+                            <Style TargetType="{x:Type TextBlock}" x:Key="title" >
+                                
+                                <Setter Property="Height" Value="30"/>
+                                <Setter Property="Width" Value="100"/>
+                                <Setter Property="Margin" Value="10,0"/>
+                                <Setter Property="FontSize" Value="22"/>
+                            </Style>
+                        </StackPanel.Resources>
                         <GroupBox BorderBrush="Black" BorderThickness="1">
                             <GroupBox.Header>
                                 <UniformGrid Rows="1" HorizontalAlignment="Left" Width="230">
@@ -161,41 +170,47 @@
                                 </UniformGrid>
                             </GroupBox.Header>
                             <StackPanel >
-                            <StackPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="TX FWD" Visibility="Hidden"/>
+                                    <TextBlock Text="FIX" Style="{StaticResource title}" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="WAR"  Style="{StaticResource title}" HorizontalAlignment="Center" />
+                                    <TextBlock Text="MAX"  Style="{StaticResource title}" HorizontalAlignment="Center" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="TX FWD"/>
-                                <TextBox Text="{Binding SelSetting.TxPowerMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
-                                <TextBox Text="{Binding SelSetting.TxPowerMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
-                                <TextBox Text="{Binding SelSetting.TxPowerMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                    <mah:NumericUpDown Value="{Binding SelSetting.TxPowerMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
+                                <mah:NumericUpDown Value="{Binding SelSetting.TxPowerMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                <mah:NumericUpDown Value="{Binding SelSetting.TxPowerMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                             <TextBlock Text="TX REV"/>
-                            <TextBox Text="{Binding SelSetting.TxSensMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
-                            <TextBox Text="{Binding SelSetting.TxSensMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
-                            <TextBox Text="{Binding SelSetting.TxSensMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                            <mah:NumericUpDown Value="{Binding SelSetting.TxSensMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
+                            <mah:NumericUpDown Value="{Binding SelSetting.TxSensMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                            <mah:NumericUpDown Value="{Binding SelSetting.TxSensMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
                         </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="TX MODE"/>
-                                <TextBox Text="{Binding SelSetting.TxModeMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
-                                <TextBox Text="{Binding SelSetting.TxModeMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
-                                <TextBox Text="{Binding SelSetting.TxModeMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                <mah:NumericUpDown Value="{Binding SelSetting.TxModeMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
+                                <mah:NumericUpDown Value="{Binding SelSetting.TxModeMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                <mah:NumericUpDown Value="{Binding SelSetting.TxModeMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="RX PRE"/>
-                                <TextBox Text="{Binding SelSetting.RxPowerMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
-                                <TextBox Text="{Binding SelSetting.RxPowerMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
-                                <TextBox Text="{Binding SelSetting.RxPowerMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                <mah:NumericUpDown Value="{Binding SelSetting.RxPowerMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
+                                <mah:NumericUpDown Value="{Binding SelSetting.RxPowerMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                <mah:NumericUpDown Value="{Binding SelSetting.RxPowerMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="RX DET"/>
-                                <TextBox Text="{Binding SelSetting.RxSensMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
-                                <TextBox Text="{Binding SelSetting.RxSensMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
-                                <TextBox Text="{Binding SelSetting.RxSensMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                <mah:NumericUpDown Value="{Binding SelSetting.RxSensMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
+                                <mah:NumericUpDown Value="{Binding SelSetting.RxSensMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                <mah:NumericUpDown Value="{Binding SelSetting.RxSensMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
                             </StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="TEMPERATURE"/>
-                                    <TextBox Text="{Binding SelSetting.TempMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
-                                    <TextBox Text="{Binding SelSetting.TempMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
-                                    <TextBox Text="{Binding SelSetting.TempMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                    <mah:NumericUpDown Value="{Binding SelSetting.TempMinFix}" mah:TextBoxHelper.Watermark="IN FIX" />
+                                    <mah:NumericUpDown Value="{Binding SelSetting.TempMinWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                    <mah:NumericUpDown Value="{Binding SelSetting.TempMaxWar}" mah:TextBoxHelper.Watermark="LOW FIX" />
                                 </StackPanel>
                             </StackPanel>                        
                         </GroupBox>
@@ -208,9 +223,14 @@
                             </GroupBox.Header>
                             <StackPanel >
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="CAPTURING"/>
+                                    <TextBlock Text="TX FWD" Visibility="Hidden"/>
+                                    <TextBlock Text="CAPTURE" Style="{StaticResource title}" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="REMOVE"  Style="{StaticResource title}" HorizontalAlignment="Center" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="INTERVALS"/>
                                     <mah:NumericUpDown Value="{Binding SelSetting.CapturingMinute}" FontSize="17" mah:TextBoxHelper.Watermark="Capturing Interval" />
-                                    <TextBox Text="{Binding SelSetting.DeadlineDate}" mah:TextBoxHelper.Watermark="LOW FIX" />
+                                    <mah:NumericUpDown Value="{Binding SelSetting.RemovingInterval}" mah:TextBoxHelper.Watermark="LOW FIX" />
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="STOP"/>

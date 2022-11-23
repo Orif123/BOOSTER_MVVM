@@ -165,9 +165,9 @@ namespace ViewModels.ViewModels
             graph_worker.RunWorkerCompleted += Graph_worker_RunWorkerCompleted;
             graph_worker.WorkerReportsProgress = true;
             graph_worker.WorkerSupportsCancellation = true;
-
-            var num = SelSetting.CapturingMinute.Value;
-            Timer = new ServiceTimer(true, ref num, 0, num);
+            var num = 0.0;
+           
+            Timer = new ServiceTimer(true, ref num, 0, SelSetting.CapturingMinute.Value);
             start_worker.RunWorkerAsync();
             Thread.Sleep(200);
             Timer.OnStart();

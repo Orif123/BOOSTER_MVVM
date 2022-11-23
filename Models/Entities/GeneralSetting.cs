@@ -9,10 +9,11 @@
 
 namespace Models.Entities
 {
+    using Models.Interfaces;
     using System;
     using System.Collections.Generic;
     
-    public partial class GeneralSetting
+    public partial class GeneralSetting : IEntityWithId
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public GeneralSetting()
