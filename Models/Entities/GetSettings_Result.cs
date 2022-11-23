@@ -30,9 +30,10 @@ namespace Models.Entities
         public Nullable<double> TempMinFix { get; set; }
         public Nullable<double> TempMinWar { get; set; }
         public Nullable<double> TempMaxWar { get; set; }
-        public Nullable<System.DateTime> DeadlineDate { get; set; }
+        public Nullable<int> DeadlineDate { get; set; }
         public Nullable<double> TxModeMinFix { get; set; }
         public Nullable<double> TxModeMinWar { get; set; }
         public Nullable<double> TxModeMaxWar { get; set; }
+        public Nullable<bool> Crush { get; set; }
     }
 }

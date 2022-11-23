@@ -37,10 +37,11 @@
           <Property Name="TempMinFix" Type="float" />
           <Property Name="TempMinWar" Type="float" />
           <Property Name="TempMaxWar" Type="float" />
-          <Property Name="DeadlineDate" Type="datetime" />
           <Property Name="TxModeMinFix" Type="float" />
           <Property Name="TxModeMinWar" Type="float" />
           <Property Name="TxModeMaxWar" Type="float" />
+          <Property Name="Crush" Type="bit" />
+          <Property Name="RemovingInterval" Type="int" />
         </EntityType>
         <EntityType Name="Log">
           <Key>
@@ -227,10 +228,12 @@
           <Property Name="TempMaxWar" Type="Double" />
           <NavigationProperty Name="Amplifiers" Relationship="Self.FK_Amplifier_GeneralSetting" FromRole="GeneralSetting" ToRole="Amplifier" />
           <NavigationProperty Name="Logs" Relationship="Self.FK_Log_GeneralSetting" FromRole="GeneralSetting" ToRole="Log" />
-          <Property Name="DeadlineDate" Type="DateTime" Precision="3" />
+          <Property Name="DeadlineDate" Type="DateTime" />
           <Property Name="TxModeMinFix" Type="Double" />
           <Property Name="TxModeMinWar" Type="Double" />
           <Property Name="TxModeMaxWar" Type="Double" />
+          <Property Name="Crush" Type="Boolean" />
+          <Property Name="RemovingInterval" Type="Int32" />
         </EntityType>
         <EntityType Name="Log">
           <Key>
@@ -440,10 +443,11 @@
           <Property Type="Double" Name="TempMinFix" Nullable="true" />
           <Property Type="Double" Name="TempMinWar" Nullable="true" />
           <Property Type="Double" Name="TempMaxWar" Nullable="true" />
-          <Property Type="DateTime" Name="DeadlineDate" Nullable="true" Precision="23" />
+          <Property Type="Int32" Name="DeadlineDate" Nullable="true" />
           <Property Type="Double" Name="TxModeMinFix" Nullable="true" />
           <Property Type="Double" Name="TxModeMinWar" Nullable="true" />
           <Property Type="Double" Name="TxModeMaxWar" Nullable="true" />
+          <Property Type="Boolean" Name="Crush" Nullable="true" />
         </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
@@ -466,10 +470,11 @@
           <EntitySetMapping Name="GeneralSettings">
             <EntityTypeMapping TypeName="BoosterModel.GeneralSetting">
               <MappingFragment StoreEntitySet="GeneralSetting">
+                <ScalarProperty Name="RemovingInterval" ColumnName="RemovingInterval" />
+                <ScalarProperty Name="Crush" ColumnName="Crush" />
                 <ScalarProperty Name="TxModeMaxWar" ColumnName="TxModeMaxWar" />
                 <ScalarProperty Name="TxModeMinWar" ColumnName="TxModeMinWar" />
                 <ScalarProperty Name="TxModeMinFix" ColumnName="TxModeMinFix" />
-                <ScalarProperty Name="DeadlineDate" ColumnName="DeadlineDate" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="CapturingMinute" ColumnName="CapturingMinute" />
                 <ScalarProperty Name="RxPowerMinFix" ColumnName="RxPowerMinFix" />
