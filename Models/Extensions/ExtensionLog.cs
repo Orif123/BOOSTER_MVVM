@@ -19,7 +19,7 @@ namespace Models.Extensions
         {
             var log = (Log)this;
             string line = "";
-            line += VarToString(log.Amplifier.Name) + ";" +
+            line += VarToString(log.Amplifier.Name ?? "") + ";" +
             VarToString(log.TxPower.ToString()) + ";" +
             VarToString(log.TxSensitivity.ToString()) + ";" +
             VarToString(log.RxPower.ToString()) + ";" +

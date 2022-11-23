@@ -46,7 +46,41 @@ namespace ViewModels.ViewModels
             Read = new RelayCommand(OnRead);
             StartGraph = new RelayCommand(OnStartGraph, CanShowGraph);
             CancelGraph = new RelayCommand(OnCancel);
+            Loaded = new RelayCommand(OnLoaded);
+            Unloaded = new RelayCommand(OnUnloaded);
+            var gsMin = DB.Settings.FirstOrDefault().CapturingMinute.Value;
+            Timer = new ServiceTimer(false, ref gsMin, gsMin, 0, LogCollection);
 
+            //var gsMin = DB.Settings.FirstOrDefault().CapturingMinute.Value;
+            //Timer = new ServiceTimer(false, ref gsMin, 0, LogCollection);
+
+        }
+
+        private void OnUnloaded()
+        {
+        }
+
+        private void OnLoaded()
+        {
+            ServiceDB.UpdateUI(DB.Settings);
+            Logs.Clear();
+            foreach (var item in DB.Logs.Where(P => P.AmplifierId == _selectedamplifier.ID))
+            {
+                Logs.Add(new LogPresentor(item));
+            }
+            LogCollection.Refresh();
+            var num = int.Parse(Timer.TimerPresentor.Substring(10, 1));
+            if (num != DB.Settings.First().CapturingMinute.Value && !Timer.IsOn)
+            {
+                Timer._timeInMinutes = DB.Settings.First().CapturingMinute.Value;
+                Timer._timeInMinutes = DB.Settings.First().CapturingMinute.Value;
+                Timer.TimerPresentor = String.Format("REMOVE IN {0} MINUTES", Timer._timeInMinutes);
+
+            }
+            OnPropertyChanged(nameof(Timer._timeInMinutes));
+            OnPropertyChanged(nameof(Timer._timeMinutes));
+            OnPropertyChanged(nameof(Timer.TimerPresentor));
+            AmpCollection.Refresh();
         }
 
         private bool CanShowGraph()
@@ -70,7 +104,7 @@ namespace ViewModels.ViewModels
                     var dataToAdd = DB.Logs.SingleOrDefault(P => P.ID == item.ID);
                     currentListLogs.Add(dataToAdd);
                 }
-                Graph.Lables = currentListLogs.Select(p => p.CapturingDate.Value.ToString("HH : mm")).ToArray();
+                Graph.Lables = new ChartValues<string>(currentListLogs.Select(p => p.CapturingDate.Value.ToString("HH : mm")));
                 Graph.RXP = new ChartValues<double>(currentListLogs.Select(P => P.RxPower.Value));
                 Graph.RXS = new ChartValues<double>(currentListLogs.Select(P => P.RxSensitivity.Value));
                 Graph.TXP = new ChartValues<double>(currentListLogs.Select(P => P.TxPower.Value));
@@ -89,7 +123,7 @@ namespace ViewModels.ViewModels
             if (obj is LogPresentor param && FilterEnabled)
             {
                 param = obj as LogPresentor;
-                return param.RealDate.Minute >= From.Minute && param.RealDate.Minute <= To.Minute
+                return param.RealDate >= From && param.RealDate <= To
                         ;
             }
             return true;
@@ -232,12 +266,14 @@ namespace ViewModels.ViewModels
                 OnPropertyChanged(nameof(SelectedAmplifier));
             }
         }
+        public RelayCommand Loaded { get; set; }
+        public RelayCommand Unloaded { get; set; }
         public RelayCommand Remove { get; set; }
         public RelayCommand Export { get; set; }
         public RelayCommand Read { get; set; }
         public RelayCommand StartGraph { get; set; }
         public RelayCommand CancelGraph { get; set; }
-       
+
 
         private bool _showAll;
 
@@ -294,7 +330,7 @@ namespace ViewModels.ViewModels
             get { return _isFilterEnabled; }
             set { _isFilterEnabled = value; OnPropertyChanged(nameof(FilterEnabled)); }
         }
-
+        public ServiceTimer Timer { get; set; }
 
 
 

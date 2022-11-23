@@ -133,7 +133,6 @@
         <Function Name="fn_diagramobjects" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" ReturnType="int" />
         <Function Name="GetAmplifiers" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="GetLogs" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
-        <Function Name="GetSettings" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="GetUser" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="sp_alterdiagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
@@ -381,7 +380,6 @@
           </FunctionImport>
           <FunctionImport Name="sp_upgraddiagrams" />
           <FunctionImport Name="GetLogs" EntitySet="Logs" ReturnType="Collection(BoosterModel.Log)" />
-          <FunctionImport Name="GetSettings" EntitySet="GeneralSettings" ReturnType="Collection(BoosterModel.GeneralSetting)" />
         </EntityContainer>
         <ComplexType Name="GetAmplifiers_Result">
           <Property Type="Guid" Name="ID" Nullable="false" />
@@ -424,30 +422,6 @@
           <Property Type="Guid" Name="SettingId" Nullable="true" />
           <Property Type="Double" Name="TxMode" Nullable="true" />
           <Property Type="Int32" Name="SelectedFilter" Nullable="true" />
-        </ComplexType>
-        <ComplexType Name="GetSettings_Result">
-          <Property Type="Guid" Name="ID" Nullable="false" />
-          <Property Type="Double" Name="CapturingMinute" Nullable="true" />
-          <Property Type="Double" Name="RxPowerMinFix" Nullable="true" />
-          <Property Type="Double" Name="RxPowerMinWar" Nullable="true" />
-          <Property Type="Double" Name="RxPowerMaxWar" Nullable="true" />
-          <Property Type="Double" Name="RxSensMinFix" Nullable="true" />
-          <Property Type="Double" Name="RxSensMinWar" Nullable="true" />
-          <Property Type="Double" Name="RxSensMaxWar" Nullable="true" />
-          <Property Type="Double" Name="TxPowerMinFix" Nullable="true" />
-          <Property Type="Double" Name="TxPowerMinWar" Nullable="true" />
-          <Property Type="Double" Name="TxPowerMaxWar" Nullable="true" />
-          <Property Type="Double" Name="TxSensMinFix" Nullable="true" />
-          <Property Type="Double" Name="TxSensMinWar" Nullable="true" />
-          <Property Type="Double" Name="TxSensMaxWar" Nullable="true" />
-          <Property Type="Double" Name="TempMinFix" Nullable="true" />
-          <Property Type="Double" Name="TempMinWar" Nullable="true" />
-          <Property Type="Double" Name="TempMaxWar" Nullable="true" />
-          <Property Type="Int32" Name="DeadlineDate" Nullable="true" />
-          <Property Type="Double" Name="TxModeMinFix" Nullable="true" />
-          <Property Type="Double" Name="TxModeMinWar" Nullable="true" />
-          <Property Type="Double" Name="TxModeMaxWar" Nullable="true" />
-          <Property Type="Boolean" Name="Crush" Nullable="true" />
         </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
@@ -566,8 +540,6 @@
           <FunctionImportMapping FunctionImportName="sp_renamediagram" FunctionName="BoosterModel.Store.sp_renamediagram" />
           <FunctionImportMapping FunctionImportName="sp_upgraddiagrams" FunctionName="BoosterModel.Store.sp_upgraddiagrams" />
           <FunctionImportMapping FunctionImportName="GetLogs" FunctionName="BoosterModel.Store.GetLogs">
-          </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="GetSettings" FunctionName="BoosterModel.Store.GetSettings">
           </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>

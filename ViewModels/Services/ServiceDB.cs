@@ -39,13 +39,8 @@ namespace ViewModels.Services
             }
             catch (Exception ex)
             {
-#if (DEBUG)
-
-                throw;
-#else
                 MessageBox.Show(ex.Message);
                 return 0;
-#endif
             }
         }
         public static int Delete<T>(T entity) where T : class, IEntityWithId

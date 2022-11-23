@@ -80,7 +80,7 @@
                          FontSize="15"
                          FontWeight="Bold"
                          
-                         Labels="{Binding Graph.Lables}" />
+                         Labels="{Binding Graph.Lables, UpdateSourceTrigger=PropertyChanged}" />
                         </ChartToolKit:CartesianChart.AxisX>
 
                         <ChartToolKit:CartesianChart.AxisY>
@@ -214,7 +214,7 @@
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="STOP"/>
-                                    <mah:ToggleSwitch IsOn="{Binding ToCrush}"/>
+                                    <mah:ToggleSwitch IsOn="{Binding SelSetting.Crush}"/>
                                 </StackPanel>
                             </StackPanel>
                         </GroupBox>

@@ -82,6 +82,15 @@ namespace Models.Extensions
                 OnPropertyChanged(nameof(Running));
             }
         }
+        private double _txMode;
+
+        public double TxMode
+        {
+            get { return _txMode; }
+            set { _txMode = value; OnPropertyChanged(nameof(TxMode)); }
+        }
+
+
 
 
     }

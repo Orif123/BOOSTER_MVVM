@@ -13,6 +13,7 @@ namespace ViewModels.ViewModels
         private Action<object> _TargetExecuteMethodOB;
 
         private Func<bool> _TargetCanExecuteMethod;
+        private RelayCommand loaded;
 
         public RelayCommand(Action executeMethod)
         {
@@ -36,13 +37,18 @@ namespace ViewModels.ViewModels
             _TargetExecuteMethodOB = executeMethod;
         }
 
+        public RelayCommand(RelayCommand loaded)
+        {
+            this.loaded = loaded;
+        }
+
         public void RaiseCanExecuteChanged()
         {
             if (CanExecuteChanged != null)
                 CanExecuteChanged(this, EventArgs.Empty);
         }
 
-        bool ICommand.CanExecute(object parameter)
+         bool ICommand.CanExecute(object parameter)
         {
             if (_TargetCanExecuteMethod != null)
             {
