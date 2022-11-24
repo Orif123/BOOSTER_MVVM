@@ -77,6 +77,8 @@ namespace ViewModels.ViewModels
             {
                 _canSet = value;
                 OnPropertyChanged(nameof(CanSet));
+                RemoveAmp.RaiseCanExecuteChanged();
+                SaveData.RaiseCanExecuteChanged();
             }
         }
         public ICollectionView AmpCollection { get; }
@@ -110,6 +112,7 @@ namespace ViewModels.ViewModels
         public RelayCommand TxOn { get; set; }
         public RelayCommand TxOff { get; set; }
         public RelayCommand SaveData { get; set; }
+        public RelayCommand RemoveAmp { get; set; }
         public RelayCommand StartGraph { get; set; }
         public RelayCommand CancelGraph { get; set; }
         public RelayCommand NewAmp { get; set; }
@@ -136,6 +139,7 @@ namespace ViewModels.ViewModels
             TxOn = new RelayCommand(OnTxOn);
             TxOff = new RelayCommand(OnTxOff);
             SaveData = new RelayCommand(OnSaveData, CanSaveData);
+            RemoveAmp = new RelayCommand(OnRemoveAmp, CanSaveData);
             StartGraph = new RelayCommand(OnStartGraph, CanStartGraph);
             CancelGraph = new RelayCommand(OnCancel);
             NewAmp = new RelayCommand(OnNewAmp);
@@ -166,11 +170,31 @@ namespace ViewModels.ViewModels
             graph_worker.WorkerReportsProgress = true;
             graph_worker.WorkerSupportsCancellation = true;
             var num = 0.0;
-           
+
             Timer = new ServiceTimer(true, ref num, 0, SelSetting.CapturingMinute.Value);
             start_worker.RunWorkerAsync();
             Thread.Sleep(200);
             Timer.OnStart();
+        }
+
+        private void OnRemoveAmp(object parameter)
+        {
+            var id = (Guid)parameter;
+            if (id != null)
+            {
+                var ampToRemove = DB.Amplifiers.SingleOrDefault(p => p.ID == id);
+                foreach (var item in DB.Logs.Where(P => P.AmplifierId == ampToRemove.ID))
+                {
+                    if (item != null)
+                    {
+                        ServiceDB.Delete(item);
+                    }
+                }
+                ServiceDB.Delete(ampToRemove);
+                DB.Amplifiers.Remove(ampToRemove);
+                Amplifiers.Remove(ampToRemove);
+                AmpCollection.Refresh();
+            }
         }
 
         private void OnCancelChangeSet(object parameter)
@@ -223,6 +247,7 @@ namespace ViewModels.ViewModels
         {
             var worker = sender as BackgroundWorker;
             var selectedDetector = (string)e.Argument;
+            ServiceDB.UpdateUI(DB.Logs);
             Graph.Lables = new ChartValues<string>(DB.Logs.Where(p => p.AmplifierId.ToString() == SelectedAmplifier.ID.ToString()).ToList().OrderByDescending(p => p.CapturingDate.Value).Select(p => p.CapturingDate.Value.ToString("HH : mm")).ToList());
             while (!worker.CancellationPending)
             {
@@ -334,7 +359,11 @@ namespace ViewModels.ViewModels
             }
             else
             {
-                if (SelectedAmplifier.IP != null && SelectedAmplifier.Port != null && SelectedAmplifier.Name != null && !DB.Amplifiers.Any(P => P.Name == SelectedAmplifier.Name))
+                if (SelectedAmplifier.IP != null &&
+                    SelectedAmplifier.Enabled != null &&
+                    SelectedAmplifier.Port != null &&
+                    SelectedAmplifier.Name != null &&
+                    !DB.Amplifiers.Any(P => P.Name == SelectedAmplifier.Name))
                 {
                     SelectedAmplifier.ID = Guid.NewGuid();
                     SelectedAmplifier.SettingId = DB.Settings.SingleOrDefault().ID;
@@ -512,10 +541,7 @@ namespace ViewModels.ViewModels
         }
         private bool CanSaveData()
         {
-            //return SelectedAmplifier.GetType()
-            //    .GetProperties()
-            //    .All(p=>p.GetValue(SelectedAmplifier) != null);
-            return true;
+            return CanSet;
         }
 
         private void OnSaveData(object parameter)

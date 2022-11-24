@@ -579,10 +579,10 @@
                         </GroupBox.Header>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         
-                        <Button Content="SAVE CHANGES" FontSize="13" Height="60" Style="{DynamicResource MahApps.Styles.Button}" Margin="70"  Background="{DynamicResource App.Brushes.Blue}" Command="{Binding SaveData}" CommandParameter="{Binding SelectedAmplifier}"/>
-                        <Button Content="ADD AMPLIFIER" FontSize="13" Height="60" Style="{DynamicResource MahApps.Styles.Button}" Margin="70"  Background="{DynamicResource App.Brushes.Orange}" Command="{Binding NewAmp}" CommandParameter="{Binding ChangeSetVisibillity}"/>
-                        <Button Content="EDIT SETTINGS" FontSize="13" Height="60" Style="{DynamicResource MahApps.Styles.Button}" Margin="70"  Background="{DynamicResource AppRed}" Command="{Binding ChangeSet}" CommandParameter="{Binding NewAmpVisibillity}"/>
-
+                        <Button Content="SAVE CHANGES" FontSize="13" Height="60" Style="{DynamicResource MahApps.Styles.Button}" Margin="30"  Background="{DynamicResource App.Brushes.Blue}" Command="{Binding SaveData}" CommandParameter="{Binding SelectedAmplifier}"/>
+                        <Button Content="ADD AMPLIFIER" FontSize="13" Height="60" Style="{DynamicResource MahApps.Styles.Button}" Margin="30"  Background="{DynamicResource App.Brushes.Orange}" Command="{Binding NewAmp}" CommandParameter="{Binding ChangeSetVisibillity}"/>
+                        <Button Content="EDIT SETTINGS" FontSize="13" Height="60" Style="{DynamicResource MahApps.Styles.Button}" Margin="30"  Background="{DynamicResource AppRed}" Command="{Binding ChangeSet}" CommandParameter="{Binding NewAmpVisibillity}"/>
+                            <Button Content="REMOVE AMP" FontSize="13" Height="60" Style="{DynamicResource MahApps.Styles.Button}" Margin="30" Command="{Binding RemoveAmp}" CommandParameter="{Binding SelectedAmplifier.ID}"/>
                         </StackPanel>
                     </GroupBox>
                     

@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Threading;
 using ViewModels.Helpers;
 using ViewModels.Services;
 
@@ -22,7 +23,7 @@ namespace ViewModels.ViewModels
     public class LogViewModel : ViewModelBase
     {
         private IDialogCoordinator coordinator;
-
+        private readonly DispatcherTimer timer = new DispatcherTimer();
         private ObservableCollection<LogPresentor> _logs = new ObservableCollection<LogPresentor>();
         private Amplifier _selectedamplifier = DB.Amplifiers.First();
         private BackgroundWorker export_file;
@@ -34,7 +35,7 @@ namespace ViewModels.ViewModels
             AmpCollection = CollectionViewSource.GetDefaultView(ServiceDB.UpdateUI(Amplifiers));
             AmpCollection.SortDescriptions.Add(new SortDescription(nameof(Amplifier.Name), ListSortDirection.Ascending));
             LogCollection = CollectionViewSource.GetDefaultView(Logs);
-            LogCollection.SortDescriptions.Add(new SortDescription(nameof(Log.CapturingDate), ListSortDirection.Descending));
+            LogCollection.SortDescriptions.Add(new SortDescription(nameof(LogPresentor.RealDate), ListSortDirection.Descending));
             LogCollection.Filter += Log_Filter;
 
             export_file = new BackgroundWorker();
@@ -48,12 +49,45 @@ namespace ViewModels.ViewModels
             CancelGraph = new RelayCommand(OnCancel);
             Loaded = new RelayCommand(OnLoaded);
             Unloaded = new RelayCommand(OnUnloaded);
-            var gsMin = DB.Settings.FirstOrDefault().CapturingMinute.Value;
-            Timer = new ServiceTimer(false, ref gsMin, gsMin, 0, LogCollection);
+            RemoveAll = new RelayCommand(OnRemoveAll);
+            double gsMin = DB.Settings.FirstOrDefault().RemovingInterval.Value;
+            Timer = new ServiceTimer(false, ref gsMin, gsMin, 0,_logs, LogCollection);
 
+            timer.Interval = new TimeSpan(0,0,0, (int)DB.Settings.FirstOrDefault().CapturingMinute.Value);
+            timer.Tick += Timer_Tick;
             //var gsMin = DB.Settings.FirstOrDefault().CapturingMinute.Value;
             //Timer = new ServiceTimer(false, ref gsMin, 0, LogCollection);
 
+        }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OnRemoveAll()
+        {
+            var currentListLogs = new List<Log>();
+            foreach (var item in Logs)
+            {
+                var dataToAdd = DB.Logs.SingleOrDefault(P => P.ID == item.ID);
+                currentListLogs.Add(dataToAdd);
+            }
+            if (currentListLogs.Count > 0)
+            {
+                foreach (var item in currentListLogs)
+                {
+                    ServiceDB.Delete(item);
+                }
+                if (!currentListLogs.Any())
+                {
+
+                    _logs.Clear();
+                    LogCollection.Refresh();
+                }
+            }
+            else
+                ShowMessageAsync("ERROR", "NO LOG TO REMOVE", MessageDialogStyle.Affirmative);
         }
 
         private void OnUnloaded()
@@ -70,10 +104,10 @@ namespace ViewModels.ViewModels
             }
             LogCollection.Refresh();
             var num = int.Parse(Timer.TimerPresentor.Substring(10, 1));
-            if (num != DB.Settings.First().CapturingMinute.Value && !Timer.IsOn)
+            Timer._timeInMinutes = DB.Settings.First().RemovingInterval.Value;
+            Timer._timeInMinutes = DB.Settings.First().RemovingInterval.Value;
+            if (num != DB.Settings.First().RemovingInterval.Value && !Timer.IsOn)
             {
-                Timer._timeInMinutes = DB.Settings.First().CapturingMinute.Value;
-                Timer._timeInMinutes = DB.Settings.First().CapturingMinute.Value;
                 Timer.TimerPresentor = String.Format("REMOVE IN {0} MINUTES", Timer._timeInMinutes);
 
             }
@@ -273,6 +307,7 @@ namespace ViewModels.ViewModels
         public RelayCommand Read { get; set; }
         public RelayCommand StartGraph { get; set; }
         public RelayCommand CancelGraph { get; set; }
+        public RelayCommand RemoveAll { get; set; }
 
 
         private bool _showAll;
@@ -331,9 +366,6 @@ namespace ViewModels.ViewModels
             set { _isFilterEnabled = value; OnPropertyChanged(nameof(FilterEnabled)); }
         }
         public ServiceTimer Timer { get; set; }
-
-
-
     }
 
 }

@@ -271,9 +271,9 @@
                     </StackPanel>
                     <StackPanel >
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" MaxHeight="100">
-                            <TextBlock Text="DO" FontSize="20"/>
+                            <TextBlock Text="REMOVE" FontSize="20"/>
                         </StackPanel>
-                        <Button Style="{DynamicResource MahApps.Styles.Button}" Content="IMPORT" Margin="20"/>
+                        <Button Style="{DynamicResource MahApps.Styles.Button}" Command="{Binding RemoveAll}" Content="REMOVE" Margin="20"/>
                     </StackPanel>
                 </UniformGrid>
             </GroupBox>

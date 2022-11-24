@@ -18,6 +18,6 @@ namespace Models.DTO
         public Guid  ID => _log.ID;
         public DateTime RealDate => _log.CapturingDate.Value;
         public string Date => _log.CapturingDate.Value.ToString("dddd  HH:mm  MMMM yyyy");
-        public string UnitName => _log.Amplifier.ToString();
+        public string UnitName => DB.Amplifiers.SingleOrDefault(p=>p.ID == _log.AmplifierId).ToString();
     }
 }
