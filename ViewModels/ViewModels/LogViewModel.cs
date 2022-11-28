@@ -31,6 +31,9 @@ namespace ViewModels.ViewModels
         {
             coordinator = instance;
 
+            double gsMin = DB.Settings.FirstOrDefault().RemovingInterval.Value;
+            Timer = new ServiceTimer(ref gsMin, gsMin, DB.Settings.FirstOrDefault().CapturingMinute.Value, _logs, LogCollection);
+            Timer.OnUpdateLogs += Timer_Tick;
             Graph = new Graph();
             AmpCollection = CollectionViewSource.GetDefaultView(ServiceDB.UpdateUI(Amplifiers));
             AmpCollection.SortDescriptions.Add(new SortDescription(nameof(Amplifier.Name), ListSortDirection.Ascending));
@@ -50,19 +53,21 @@ namespace ViewModels.ViewModels
             Loaded = new RelayCommand(OnLoaded);
             Unloaded = new RelayCommand(OnUnloaded);
             RemoveAll = new RelayCommand(OnRemoveAll);
-            double gsMin = DB.Settings.FirstOrDefault().RemovingInterval.Value;
-            Timer = new ServiceTimer(false, ref gsMin, gsMin, 0,_logs, LogCollection);
 
-            timer.Interval = new TimeSpan(0,0,0, (int)DB.Settings.FirstOrDefault().CapturingMinute.Value);
-            timer.Tick += Timer_Tick;
             //var gsMin = DB.Settings.FirstOrDefault().CapturingMinute.Value;
             //Timer = new ServiceTimer(false, ref gsMin, 0, LogCollection);
-
+            Timer.OnStart(null);
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        public void Timer_Tick()
         {
-            throw new NotImplementedException();
+            ServiceDB.UpdateUI(DB.Logs);
+            Logs.Clear();
+            foreach (var item in DB.Logs.Where(P => P.AmplifierId.ToString() == _selectedamplifier.ID.ToString()))
+            {
+                Logs.Add(new LogPresentor(item));
+            }
+            LogCollection.Refresh();
         }
 
         private void OnRemoveAll()
@@ -79,12 +84,7 @@ namespace ViewModels.ViewModels
                 {
                     ServiceDB.Delete(item);
                 }
-                if (!currentListLogs.Any())
-                {
-
-                    _logs.Clear();
-                    LogCollection.Refresh();
-                }
+                Timer_Tick();
             }
             else
                 ShowMessageAsync("ERROR", "NO LOG TO REMOVE", MessageDialogStyle.Affirmative);
@@ -96,13 +96,7 @@ namespace ViewModels.ViewModels
 
         private void OnLoaded()
         {
-            ServiceDB.UpdateUI(DB.Settings);
-            Logs.Clear();
-            foreach (var item in DB.Logs.Where(P => P.AmplifierId == _selectedamplifier.ID))
-            {
-                Logs.Add(new LogPresentor(item));
-            }
-            LogCollection.Refresh();
+            Timer_Tick();
             var num = int.Parse(Timer.TimerPresentor.Substring(10, 1));
             Timer._timeInMinutes = DB.Settings.First().RemovingInterval.Value;
             Timer._timeInMinutes = DB.Settings.First().RemovingInterval.Value;
@@ -138,7 +132,7 @@ namespace ViewModels.ViewModels
                     var dataToAdd = DB.Logs.SingleOrDefault(P => P.ID == item.ID);
                     currentListLogs.Add(dataToAdd);
                 }
-                Graph.Lables = new ChartValues<string>(currentListLogs.Select(p => p.CapturingDate.Value.ToString("HH : mm")));
+                Graph.Lables = new ObservableCollection<string>(currentListLogs.OrderBy(p => p.CapturingDate.Value).Select(p => p.CapturingDate.Value.ToString("HH : mm")));
                 Graph.RXP = new ChartValues<double>(currentListLogs.Select(P => P.RxPower.Value));
                 Graph.RXS = new ChartValues<double>(currentListLogs.Select(P => P.RxSensitivity.Value));
                 Graph.TXP = new ChartValues<double>(currentListLogs.Select(P => P.TxPower.Value));
@@ -199,10 +193,10 @@ namespace ViewModels.ViewModels
                     using (FileStream fs = File.Create(filePath))
                     {
 
-                        var currentListLogs = new List<Log>();
+                        var currentListLogs = new ObservableCollection<Log>();
                         foreach (var item in Logs)
                         {
-                            var dataToAdd = DB.Logs.SingleOrDefault(P => P.ID == item.ID);
+                            var dataToAdd = DB.Logs.SingleOrDefault(P => P.ID.ToString() == item.ID.ToString());
                             currentListLogs.Add(dataToAdd);
                         }
                         byte[] info = new UTF8Encoding(true).GetBytes(CSVHeader());
@@ -210,8 +204,8 @@ namespace ViewModels.ViewModels
                         if (parameter != null)
                         {
                             var id = (Guid)parameter;
-                            var singleLog = DB.Logs.SingleOrDefault(P => P.ID == id);
-                            info = new UTF8Encoding(true).GetBytes(singleLog.ToCSV());
+                            var singleLog = (Models.Entities.Log)currentListLogs.SingleOrDefault(P => P.ID.ToString() == id.ToString());
+                            info = new UTF8Encoding(true).GetBytes(singleLog.ToCSV(SelectedAmplifier.Name));
                             fs.Write(info, 0, info.Length);
 
                         }
@@ -220,7 +214,7 @@ namespace ViewModels.ViewModels
                             foreach (var log in currentListLogs)
                             {
 
-                                info = new UTF8Encoding(true).GetBytes(log.ToCSV());
+                                info = new UTF8Encoding(true).GetBytes(log.ToCSV(SelectedAmplifier.Name));
                                 // Add some information to the file.
                                 fs.Write(info, 0, info.Length);
                             }

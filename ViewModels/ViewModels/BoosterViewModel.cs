@@ -1,4 +1,5 @@
 ﻿using LiveCharts;
+using LiveCharts.Wpf;
 using MahApps.Metro.Controls.Dialogs;
 using Models.DTO;
 using Models.Entities;
@@ -100,7 +101,7 @@ namespace ViewModels.ViewModels
                 OnPropertyChanged(nameof(SelSetting));
             }
         }
-
+        
 
 
         public Graph Graph { get; set; }
@@ -169,12 +170,12 @@ namespace ViewModels.ViewModels
             graph_worker.RunWorkerCompleted += Graph_worker_RunWorkerCompleted;
             graph_worker.WorkerReportsProgress = true;
             graph_worker.WorkerSupportsCancellation = true;
-            var num = 0.0;
-
-            Timer = new ServiceTimer(true, ref num, 0, SelSetting.CapturingMinute.Value);
+            
+           
             start_worker.RunWorkerAsync();
-            Thread.Sleep(200);
-            Timer.OnStart();
+            
+            
+            
         }
 
         private void OnRemoveAmp(object parameter)
@@ -222,6 +223,7 @@ namespace ViewModels.ViewModels
         private void OnChangeSet(object parameter)
         {
             ChangeSetVisibillity = Visibility.Visible;
+            CanSet = true;
             Graph.IsMainUnabled = false;
         }
 
@@ -229,8 +231,11 @@ namespace ViewModels.ViewModels
         {
             return true;
         }
-        private void OnCancel()
+        private void OnCancel(object parameter)
         {
+            var graph = (CartesianChart)parameter;
+            graph.AxisX.FirstOrDefault().Labels = new ObservableCollection<string>();
+            OnPropertyChanged(nameof(Graph.Lables));
             Graph.ShowGraph = Visibility.Collapsed;
             Graph.IsMainUnabled = true;
             if (graph_worker.IsBusy)
@@ -238,6 +243,8 @@ namespace ViewModels.ViewModels
         }
         private void OnStartGraph(object parameter)
         {
+            Graph.Lables = new ObservableCollection<string>(DB.Logs.Where(p => p.AmplifierId.ToString() == SelectedAmplifier.ID.ToString()).ToList().OrderByDescending(p => p.CapturingDate.Value).Select(p => p.CapturingDate.Value.ToString("HH : mm")).ToList());
+            OnPropertyChanged(nameof(Graph.Lables));
             var detector = (string)parameter;
             if (!graph_worker.IsBusy && detector != null)
                 graph_worker.RunWorkerAsync(detector);
@@ -248,7 +255,8 @@ namespace ViewModels.ViewModels
             var worker = sender as BackgroundWorker;
             var selectedDetector = (string)e.Argument;
             ServiceDB.UpdateUI(DB.Logs);
-            Graph.Lables = new ChartValues<string>(DB.Logs.Where(p => p.AmplifierId.ToString() == SelectedAmplifier.ID.ToString()).ToList().OrderByDescending(p => p.CapturingDate.Value).Select(p => p.CapturingDate.Value.ToString("HH : mm")).ToList());
+            OnPropertyChanged(nameof(Graph.Lables));
+            counter = Graph.Lables.Count;
             while (!worker.CancellationPending)
             {
                 var logList = DB.Logs.Where(p => p.AmplifierId.ToString() == SelectedAmplifier.ID.ToString()).ToList();
@@ -282,10 +290,11 @@ namespace ViewModels.ViewModels
                 }
                 if (logList.Count > counter)
                 {
-                    counter = logList.Count;
-                    Graph.Lables.Insert(0, DateTime.Now.ToString("HH:mm"));
+                    counter++;
+                    Graph.Lables.Insert(0, DateTime.Now.ToString("HH : mm"));
                     OnPropertyChanged(nameof(SelectedDetectorGraph));
                     OnPropertyChanged(nameof(Graph.Lables));
+
                 }
                 Thread.Sleep(500);
                 //worker.ReportProgress(0, logList);
@@ -303,6 +312,9 @@ namespace ViewModels.ViewModels
             if (e.Error != null)
                 ShowMessageAsync("ERROR", "Something went wrong on this proccess, please try again later", MessageDialogStyle.Affirmative);
             SelectedDetectorGraph.Clear();
+            OnPropertyChanged(nameof(Graph.Lables));
+            OnPropertyChanged(nameof(SelectedDetectorGraph));
+            counter = 0;
             OnPropertyChanged(nameof(SelectedDetectorGraph));
             Graph.ShowGraph = Visibility.Collapsed;
             Graph.IsMainUnabled = true;
@@ -532,16 +544,17 @@ namespace ViewModels.ViewModels
                 pinger_worker.CancelAsync();
         }
 
-        private void OnLoaded()
+        private void OnLoaded(object parameter)
         {
+          
             ServiceDB.UpdateUI(Amplifiers);
-            if (!pinger_worker.IsBusy)
-                pinger_worker.RunWorkerAsync();
+            //if (!pinger_worker.IsBusy)
+            //    pinger_worker.RunWorkerAsync();
 
         }
         private bool CanSaveData()
         {
-            return CanSet;
+            return true;
         }
 
         private void OnSaveData(object parameter)

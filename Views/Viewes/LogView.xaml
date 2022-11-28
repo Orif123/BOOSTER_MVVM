@@ -59,7 +59,7 @@
             <ColumnDefinition Width="4*"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
-        <Border Grid.Column="1" Height="500" Width="700" BorderBrush="Black" BorderThickness="2" Panel.ZIndex="1" Background="{DynamicResource MahApps.Brushes.Gray8}"  Visibility="{Binding Graph.ShowGraph}">
+        <Border Grid.Column="1" Height="500" Width="700" VerticalAlignment="Top" BorderBrush="Black" BorderThickness="2" Panel.ZIndex="1" Background="{DynamicResource MahApps.Brushes.Gray8}"  Visibility="{Binding Graph.ShowGraph}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -149,8 +149,8 @@
                     <StackPanel Orientation="Vertical">
                         <TextBlock Text="{Binding Timer.TimerPresentor}" Foreground="{Binding Timer.IsOn, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource App.Brushes.Green}}" HorizontalAlignment="Center" Margin="10" FontSize="22"/>
                         <UniformGrid Rows="1" VerticalAlignment="Bottom">
-                            <Button Style="{DynamicResource MahApps.Styles.Button}" Content="START" Command="{Binding Timer.Start}" />
-                            <Button Style="{DynamicResource MahApps.Styles.Button}" Content="STOP" Command="{Binding Timer.Stop}"/>
+                            <Button Style="{DynamicResource MahApps.Styles.Button}" Content="START" Command="{Binding Timer.Start}" CommandParameter="{Binding Timer.TimerPresentor}"/>
+                            <Button Style="{DynamicResource MahApps.Styles.Button}" Content="STOP" Command="{Binding Timer.Stop}" CommandParameter="{Binding Timer.TimerPresentor}"/>
                         </UniformGrid>
                     </StackPanel>
                 </Border>

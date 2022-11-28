@@ -19,22 +19,25 @@ namespace ViewModels.Services
         public double _timeInMinutes;
         public double _timeMinutes;
         private double _timeInSeconds;
-        private readonly bool _isInterval;
         private DispatcherTimer pres_dt;
         private DispatcherTimer dt;
+        private DispatcherTimer deleteTimer;
         private ICollectionView _collection;
-        public ServiceTimer(bool isInterval, ref double timeInMinutes, double timeMinutes, double timeInSeconds,ObservableCollection<LogPresentor> logger = null, ICollectionView collection = null)
+        public ServiceTimer(ref double timeInMinutes, double timeMinutes, double timeInSeconds, ObservableCollection<LogPresentor> logger = null, ICollectionView collection = null)
         {
 
-            _isInterval = isInterval;
             _timeInMinutes = timeInMinutes;
             _timeMinutes = timeMinutes;
             _timeInSeconds = timeInSeconds;
             _logger = logger;
             _collection = collection;
             dt = new DispatcherTimer(DispatcherPriority.Normal);
-            dt.Interval = new TimeSpan(0, (int)timeInMinutes, (int)timeInSeconds);
+            dt.Interval = new TimeSpan(0, 0, (int)timeInSeconds);
             dt.Tick += Dt_Tick;
+
+            deleteTimer = new DispatcherTimer(DispatcherPriority.Normal);
+            deleteTimer.Interval = new TimeSpan(0, (int)timeInMinutes, 0);
+            deleteTimer.Tick += DeleteTimer_Tick;
 
             pres_dt = new DispatcherTimer();
             pres_dt.Interval = new TimeSpan(0, 1, 0);
@@ -42,11 +45,23 @@ namespace ViewModels.Services
 
             Start = new RelayCommand(OnStart, CanStart);
             Stop = new RelayCommand(OnStop);
+
             TimerPresentor = String.Format("REMOVE IN {0} MINUTES", _timeInMinutes);
 
 
 
 
+        }
+
+        private void DeleteTimer_Tick(object sender, EventArgs e)
+        {
+            foreach (var item in DB.Logs)
+            {
+                ServiceDB.Delete(item);
+
+            }
+            _logger.Clear();
+            OnUpdateLogs?.Invoke();
         }
 
         private void Pres_dt_Tick(object sender, EventArgs e)
@@ -61,50 +76,39 @@ namespace ViewModels.Services
 
         private void Dt_Tick(object sender, EventArgs e)
         {
-            if (!_isInterval)
-            {
-                foreach (var item in DB.Logs)
-                {
-                    ServiceDB.Delete(item);
-                    
-                }
-                _logger.Clear();
-            }
-            else
-            {
-                foreach (var amp in DB.Amplifiers.Where(p => !p.Pinging && p.Enabled.Value))
-                {
-                    var log = new Log()
-                    {
-                        CapturingDate = DateTime.Now,
-                        RxPower = amp.RxPower,
-                        RxSensitivity = amp.RxSensitivity,
-                        TxPower = amp.TxPower,
-                        TxSensitivity = amp.TxSensitivity,
-                        Temprature = amp.Temprature,
-                        AmplifierId = amp.ID,
-                        UserId = DB.Users.FirstOrDefault(P => P.IsConnected.Value).ID,
-                        SelectedFilter = (int)amp.SelFilter,
-                        TxMode = amp.TxMode
-                    };
-                    ServiceDB.AddOrUpdate(log);
 
-                    //_logger.Add(new LogPresentor(log));
-                }
+            foreach (var amp in DB.Amplifiers.Where(p => !p.Pinging && p.Enabled.Value))
+            {
+                var log = new Log()
+                {
+                    CapturingDate = DateTime.Now,
+                    RxPower = amp.RxPower,
+                    RxSensitivity = amp.RxSensitivity,
+                    TxPower = amp.TxPower,
+                    TxSensitivity = amp.TxSensitivity,
+                    Temprature = amp.Temprature,
+                    AmplifierId = amp.ID,
+                    UserId = DB.Users.FirstOrDefault(P => P.IsConnected.Value).ID,
+                    SelectedFilter = (int)amp.SelFilter,
+                    TxMode = amp.TxMode
+                };
+                ServiceDB.AddOrUpdate(log);
             }
-            ServiceDB.UpdateUI(DB.Logs);
-            if (_collection != null)
-                _collection.Refresh();
+            OnUpdateLogs?.Invoke();
         }
 
 
 
 
-        private void OnStop()
+        private void OnStop(object parameter)
         {
-            dt.Stop();
-            if (!_isInterval)
+            if ((string)parameter != null)
+            {
+                deleteTimer.Stop();
                 pres_dt.Stop();
+            }
+            else
+                dt.Stop();
             OnPropertyChanged(nameof(IsOn));
         }
 
@@ -113,16 +117,22 @@ namespace ViewModels.Services
             return true;
         }
 
-        public void OnStart()
+        public void OnStart(object parameter)
         {
-            dt.Start();
-            if (!_isInterval)
+            if ((string)parameter != null)
+            {
+                deleteTimer.Start();
                 pres_dt.Start();
+            }
+            else
+                dt.Start();
             OnPropertyChanged(nameof(IsOn));
         }
 
         public RelayCommand Start { get; set; }
         public RelayCommand Stop { get; set; }
+        public delegate void LogsUpdated();
+        public LogsUpdated OnUpdateLogs { get; set; }
         private string _timerPresentor;
 
         public string TimerPresentor
@@ -139,10 +149,7 @@ namespace ViewModels.Services
         {
             get
             {
-                if (!_isInterval)
-                    return dt.IsEnabled && pres_dt.IsEnabled;
-                else
-                    return dt.IsEnabled;
+                return dt.IsEnabled && pres_dt.IsEnabled;
             }
 
         }

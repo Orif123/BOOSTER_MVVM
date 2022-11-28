@@ -7,12 +7,20 @@
              xmlns:gauge="clr-namespace:EXT.CircularGauge;assembly=EXT.CircularGauge"
              xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
              Dialog:DialogParticipation.Register="{Binding}"
-             xmlns:local="clr-namespace:Views.Viewes" xmlns:ipack="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:diag="http://mindfusion.eu/diagramming/wpf" xmlns:viewmodels="clr-namespace:ViewModels.ViewModels;assembly=ViewModels" xmlns:ChartToolKit="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf" xmlns:local1="clr-namespace:Views.Converters" d:DataContext="{d:DesignInstance Type=viewmodels:BoosterViewModel}"
+             xmlns:local="clr-namespace:Views.Viewes" xmlns:ipack="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:diag="http://mindfusion.eu/diagramming/wpf" xmlns:viewmodels="clr-namespace:ViewModels.ViewModels;assembly=ViewModels" xmlns:ChartToolKit="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf" xmlns:local1="clr-namespace:Views.Converters" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" d:DataContext="{d:DesignInstance Type=viewmodels:BoosterViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <local1:BoolToColorConverter x:Key="BoolToColorConverter"/>
     </UserControl.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding Loaded}" CommandParameter="{Binding ElementName=chart}"/>
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Unloaded">
+            <i:InvokeCommandAction Command="{Binding Unloaded}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"/>
@@ -24,7 +32,7 @@
                 <ColumnDefinition Width="4*"/>
                 
             </Grid.ColumnDefinitions>
-            <ListView Grid.Column="0" Margin="5,5, 0, 5" IsEnabled="{Binding Graph.IsMainUnabled}" ItemsSource="{Binding Amplifiers}" SelectedItem="{Binding SelectedAmplifier}" >
+            <ListView Grid.Column="0" Margin="5,5, 0, 5" IsHitTestVisible="{Binding Graph.IsMainUnabled}" ItemsSource="{Binding Amplifiers}" SelectedItem="{Binding SelectedAmplifier}" >
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Grid Margin="10">
@@ -66,7 +74,7 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="INDICATORS PROCCESS" Foreground="{DynamicResource MahApps.Brushes.Menu.Background}" FontWeight="DemiBold" HorizontalAlignment="Stretch" FontFamily="Vrinda" VerticalAlignment="Stretch" TextAlignment="Center" FontSize="58"/>
-                    <ChartToolKit:CartesianChart Grid.Row="1" Height="300"
+                    <ChartToolKit:CartesianChart Grid.Row="1" Name="chart" Height="300"
                            Margin="5 0 5 0"
                            >
 
@@ -91,7 +99,7 @@
                         </ChartToolKit:CartesianChart.AxisY>
                     </ChartToolKit:CartesianChart>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2">
-                        <Button Style="{DynamicResource MahApps.Styles.Button}" Height="50" Width="100"  Background="{DynamicResource App.Brushes.Red}" Command="{Binding CancelGraph}" Content="BACK"/>
+                        <Button Style="{DynamicResource MahApps.Styles.Button}" Height="50" Width="100"  Background="{DynamicResource App.Brushes.Red}" Command="{Binding CancelGraph}" CommandParameter="{Binding ElementName=chart}" Content="BACK"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -245,7 +253,7 @@
                                 </StackPanel>
                 </Grid>
             </Border>
-            <Border Background="{DynamicResource MahApps.Brushes.Menu.Background}" IsEnabled="{Binding Graph.IsMainUnabled}"  Margin="5,5, 0, 5" Grid.Column="1">
+            <Border Background="{DynamicResource MahApps.Brushes.Menu.Background}" IsHitTestVisible="{Binding Graph.IsMainUnabled}"  Margin="5,5, 0, 5" Grid.Column="1">
                 <Grid>
                     <Grid.Resources>
                         <Style TargetType="Button">
@@ -335,7 +343,7 @@
                             </Grid> 
                     </Grid>
                     </Border>
-                    <Grid  Margin="10" Grid.Column="1" Grid.Row="3" IsEnabled="{Binding Graph.IsMainUnabled}">
+                    <Grid  Margin="10" Grid.Column="1" Grid.Row="3" IsHitTestVisible="{Binding Graph.IsMainUnabled}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition  />
@@ -363,14 +371,14 @@
 
                         <gauge:CircularGaugeControl Grid.Row="2" Grid.Column="0" Style="{DynamicResource GaugeStyle}" 
                                                             CurrentValue="{Binding SelectedAmplifier.TxPower}"
-                                                            OptimalRangeStartValue="{Binding SelSetting.TxPowerMinFix}"                                      
+                                                            OptimalRangeStartValue="{Binding SelSetting.TxPowerMinWar}"                                      
                                                             OptimalRangeEndValue="{Binding SelSetting.TxPowerMinWar}"
                                                             
                                                                                                                        
                                                            
                                                             DialTextColor="{DynamicResource MahApps.Colors.ThemeForeground}"
                                                             BelowOptimalRangeColor="{StaticResource App.Color.Green}"
-                                                            AboveOptimalRangeColor="{StaticResource App.Color.Orange}"
+                                                            AboveOptimalRangeColor="{StaticResource App.Color.Red}"
                                                                
                                                             Radius="70" 
                                                             ScaleStartAngle="135" 
@@ -387,12 +395,12 @@
                                                             DialTextOffset="45" DialText="FWD" FontSize="16"/>
                         <gauge:CircularGaugeControl Grid.Row="2" Grid.Column="1" Style="{DynamicResource GaugeStyle}" 
                                                             CurrentValue="{Binding SelectedAmplifier.TxSensitivity}"
-                                                            OptimalRangeStartValue="{Binding SelSetting.TxPowerMinFix}"                                      
-                                                            OptimalRangeEndValue="{Binding SelSetting.TxPowerMinWar}"
+                                                            OptimalRangeStartValue="{Binding SelSetting.TxSensMinWar}"                                      
+                                                            OptimalRangeEndValue="{Binding SelSetting.TxSensMinWar}"
                                                             
                                                             DialTextColor="{DynamicResource MahApps.Colors.ThemeForeground}"
                                                             BelowOptimalRangeColor="{StaticResource App.Color.Green}"
-                                                            AboveOptimalRangeColor="{StaticResource App.Color.Orange}"
+                                                            AboveOptimalRangeColor="{StaticResource App.Color.Red}"
                                                             
                                                                      
                                                             Radius="70" 
@@ -401,21 +409,21 @@
                                                             PointerLength="37" 
                                                             PointerCapRadius="11"
                                                             PointerThickness ="3"
-                                                            MinValue="{Binding SelSetting.TxPowerMinFix}" 
-                                                            MaxValue="{Binding SelSetting.TxPowerMaxWar}" 
+                                                            MinValue="{Binding SelSetting.TxSensMinFix}" 
+                                                            MaxValue="{Binding SelSetting.TxSensMaxWar}" 
                                                             MajorDivisionsCount="6" 
                                                             RangeIndicatorThickness="8"
                                                             RangeIndicatorRadius="50"
                                                             ScaleLabelFontSize="12"
                                                             DialTextOffset="45" DialText="REV" FontSize="16"/>
                         <gauge:CircularGaugeControl Grid.Row="2" Grid.Column="2" Style="{DynamicResource GaugeStyle}" 
-                                                            CurrentValue="{Binding Tmp}"
-                                                            OptimalRangeStartValue="10"                                      
-                                                            OptimalRangeEndValue="20"
+                                                            CurrentValue="{Binding SelectedAmplifier.Temprature}"
+                                                            OptimalRangeStartValue="{Binding SelSetting.TempMinWar}"                                      
+                                                            OptimalRangeEndValue="{Binding SelSetting.TempMinWar}"
                                                             
                                                             DialTextColor="{DynamicResource MahApps.Colors.ThemeForeground}"
                                                             BelowOptimalRangeColor="{StaticResource App.Color.Green}"
-                                                            AboveOptimalRangeColor="{StaticResource App.Color.Orange}"
+                                                            AboveOptimalRangeColor="{StaticResource App.Color.Red}"
                                                             
                                                             Radius="70" 
                                                             ScaleStartAngle="135" 
@@ -423,21 +431,21 @@
                                                             PointerLength="37" 
                                                             PointerCapRadius="11"
                                                             PointerThickness ="3"
-                                                            MinValue="10" 
-                                                            MaxValue="40" 
+                                                            MinValue="{Binding SelSetting.TempMinFix}" 
+                                                            MaxValue="{Binding SelSetting.TempMaxWar}" 
                                                             MajorDivisionsCount="6" 
                                                             RangeIndicatorThickness="8"
                                                             RangeIndicatorRadius="50"
                                                             ScaleLabelFontSize="12"
                                                             DialTextOffset="45" DialText="TEMP" FontSize="16"/>
                         <gauge:CircularGaugeControl Grid.Row="2" Grid.Column="3" Style="{DynamicResource GaugeStyle}" 
-                                                            CurrentValue="{Binding Cur}"
-                                                            OptimalRangeStartValue="10"                                      
-                                                            OptimalRangeEndValue="20"
+                                                            CurrentValue="{Binding SelectedAmplifier.RxPower}"
+                                                            OptimalRangeStartValue="{Binding SelSetting.RxPowerMinWar}"                                      
+                                                            OptimalRangeEndValue="{Binding SelSetting.RxPowerMinWar}"
                                                             
                                                             DialTextColor="{DynamicResource MahApps.Colors.ThemeForeground}"
                                                             BelowOptimalRangeColor="{StaticResource App.Color.Green}"
-                                                            AboveOptimalRangeColor="{StaticResource App.Color.Orange}"
+                                                            AboveOptimalRangeColor="{StaticResource App.Color.Red}"
                                                             
                                                             Radius="70" 
                                                             ScaleStartAngle="135" 
@@ -445,21 +453,21 @@
                                                             PointerLength="37" 
                                                             PointerCapRadius="11"
                                                             PointerThickness ="3"
-                                                            MinValue="10" 
-                                                            MaxValue="40" 
+                                                            MinValue="{Binding SelSetting.RxPowerMinFix}" 
+                                                            MaxValue="{Binding SelSetting.RxPowerMaxWar}" 
                                                             MajorDivisionsCount="6" 
                                                             RangeIndicatorThickness="8"
                                                             RangeIndicatorRadius="50"
                                                             ScaleLabelFontSize="12"
                                                             DialTextOffset="45" DialText="CUR" FontSize="16"/>
                         <gauge:CircularGaugeControl Grid.Row="2" Grid.Column="4" Style="{DynamicResource GaugeStyle}" 
-                                                            CurrentValue="{Binding Cur}"
-                                                            OptimalRangeStartValue="10"                                      
-                                                            OptimalRangeEndValue="20"
+                                                            CurrentValue="{Binding SelectedAmplifier.RxSensitivity}"
+                                                            OptimalRangeStartValue="{Binding SelSetting.RxSensMinWar}"                                      
+                                                            OptimalRangeEndValue="{Binding SelSetting.RxSensMinWar}"
                                                             
                                                             DialTextColor="{DynamicResource MahApps.Colors.ThemeForeground}"
                                                             BelowOptimalRangeColor="{StaticResource App.Color.Green}"
-                                                            AboveOptimalRangeColor="{StaticResource App.Color.Orange}"
+                                                            AboveOptimalRangeColor="{StaticResource App.Color.Red}"
                                                             
                                                             Radius="70" 
                                                             ScaleStartAngle="135" 
@@ -467,8 +475,8 @@
                                                             PointerLength="37" 
                                                             PointerCapRadius="11"
                                                             PointerThickness ="3"
-                                                            MinValue="10" 
-                                                            MaxValue="40" 
+                                                            MinValue="{Binding SelSetting.RxSensMinFix}" 
+                                                            MaxValue="{Binding SelSetting.RxSensMaxWar}" 
                                                             MajorDivisionsCount="6" 
                                                             RangeIndicatorThickness="8"
                                                             RangeIndicatorRadius="50"
@@ -482,7 +490,7 @@
                 </Grid>
             </Border>
         </Grid>
-        <Grid Grid.Column="2" Height="auto" Width="auto" IsEnabled="{Binding Graph.IsMainUnabled}">
+        <Grid Grid.Column="2" Height="auto" Width="auto" IsHitTestVisible="{Binding Graph.IsMainUnabled}">
             <Border Background="{DynamicResource MahApps.Brushes.Menu.Background}" Margin="5,5, 0, 5" >
                 <StackPanel>
                     <TextBlock Text="Amplifier Settings" FontWeight="DemiBold" HorizontalAlignment="Stretch" FontFamily="Vrinda" VerticalAlignment="Stretch" TextAlignment="Center" FontSize="58"/>

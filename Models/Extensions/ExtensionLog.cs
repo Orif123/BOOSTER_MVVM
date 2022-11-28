@@ -1,4 +1,5 @@
-﻿using Models.Entities;
+﻿using Models.DTO;
+using Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,17 +16,19 @@ namespace Models.Extensions
                 return string.Empty;
             return input;
         }
-        public string ToCSV()
+        public string ToCSV(string name)
         {
-            var log = (Log)this;
+            
+            var log = (Models.Entities.Log)this;
+            var realLog = DB.Logs.SingleOrDefault(p => p.ID == log.ID);
             string line = "";
-            line += VarToString(log.Amplifier.Name ?? "") + ";" +
-            VarToString(log.TxPower.ToString()) + ";" +
-            VarToString(log.TxSensitivity.ToString()) + ";" +
-            VarToString(log.RxPower.ToString()) + ";" +
-            VarToString(log.RxSensitivity.ToString()) + ";" +
-            VarToString(log.Temprature.ToString()) + ";" +
-            VarToString(log.CapturingDate.Value.ToString("MMMM yyyy HH:mm")) + ";";
+            line += VarToString(name ?? "") + ";" +
+            VarToString(realLog.TxPower.ToString()?? "") + ";" +
+            VarToString(realLog.TxSensitivity.ToString() ?? "") + ";" +
+            VarToString(realLog.RxPower.ToString() ?? "") + ";" +
+            VarToString(realLog.RxSensitivity.ToString() ?? "") + ";" +
+            VarToString(realLog.Temprature.ToString() ?? "") + ";" +
+            VarToString(realLog.CapturingDate.Value.ToString("MMMM yyyy HH:mm") ?? "") + ";";
             
             
             

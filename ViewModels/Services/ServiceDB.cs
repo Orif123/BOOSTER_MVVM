@@ -78,10 +78,15 @@ namespace ViewModels.Services
                         entityList.Add(dto);
                     }
                 }
+               
                 return entityList;
             }
         }
-
+        public static void UpdateLogs()
+        {
+            using (BoosterEntities dbContext = new BoosterEntities())
+                DB.Logs = new ObservableCollection<Log>(dbContext.GetLogs());
+        }
         public static List<T> GetAll<T>() where T : class
         {
 
