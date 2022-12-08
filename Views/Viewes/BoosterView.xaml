@@ -87,7 +87,6 @@
                             <ChartToolKit:Axis Title="TIME"
                          FontSize="15"
                          FontWeight="Bold"
-                         
                          Labels="{Binding Graph.Lables, UpdateSourceTrigger=PropertyChanged}" />
                         </ChartToolKit:CartesianChart.AxisX>
 

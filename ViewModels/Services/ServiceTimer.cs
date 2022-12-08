@@ -47,10 +47,6 @@ namespace ViewModels.Services
             Stop = new RelayCommand(OnStop);
 
             TimerPresentor = String.Format("REMOVE IN {0} MINUTES", _timeInMinutes);
-
-
-
-
         }
 
         private void DeleteTimer_Tick(object sender, EventArgs e)
@@ -96,10 +92,6 @@ namespace ViewModels.Services
             }
             OnUpdateLogs?.Invoke();
         }
-
-
-
-
         private void OnStop(object parameter)
         {
             if ((string)parameter != null)
@@ -151,10 +143,6 @@ namespace ViewModels.Services
             {
                 return dt.IsEnabled && pres_dt.IsEnabled;
             }
-
         }
-
-
-
     }
 }

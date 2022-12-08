@@ -234,7 +234,8 @@ namespace ViewModels.ViewModels
         private void OnCancel(object parameter)
         {
             var graph = (CartesianChart)parameter;
-            graph.AxisX.FirstOrDefault().Labels = new ObservableCollection<string>();
+            //graph.AxisX.FirstOrDefault().Labels = new ObservableCollection<string>();
+            graph.AxisX.FirstOrDefault().ShowLabels = true;
             OnPropertyChanged(nameof(Graph.Lables));
             Graph.ShowGraph = Visibility.Collapsed;
             Graph.IsMainUnabled = true;

@@ -36,7 +36,7 @@ namespace ViewModels.ViewModels
             Timer.OnUpdateLogs += Timer_Tick;
             Graph = new Graph();
             AmpCollection = CollectionViewSource.GetDefaultView(ServiceDB.UpdateUI(Amplifiers));
-            AmpCollection.SortDescriptions.Add(new SortDescription(nameof(Amplifier.Name), ListSortDirection.Ascending));
+            AmpCollection.SortDescriptions.Add(new SortDescription(nameof(Amplifier.Name), ListSortDirection.Descending));
             LogCollection = CollectionViewSource.GetDefaultView(Logs);
             LogCollection.SortDescriptions.Add(new SortDescription(nameof(LogPresentor.RealDate), ListSortDirection.Descending));
             LogCollection.Filter += Log_Filter;
@@ -113,7 +113,7 @@ namespace ViewModels.ViewModels
 
         private bool CanShowGraph()
         {
-            return !ShowAll;
+            return true;
         }
 
         private void OnCancel()

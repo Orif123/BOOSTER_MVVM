@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Views", "Views\Views.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EXT.CircularGauge", "EXT.CircularGauge\EXT.CircularGauge.csproj", "{122B6258-96B3-484A-946D-1FCA94405BE2}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup1", "Setup1\Setup1.vdproj", "{59FB210F-1FA4-4C7E-8915-0C2285EEF277}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,8 @@ Global
 		{122B6258-96B3-484A-946D-1FCA94405BE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{122B6258-96B3-484A-946D-1FCA94405BE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{122B6258-96B3-484A-946D-1FCA94405BE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59FB210F-1FA4-4C7E-8915-0C2285EEF277}.Debug|Any CPU.ActiveCfg = Debug
+		{59FB210F-1FA4-4C7E-8915-0C2285EEF277}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
