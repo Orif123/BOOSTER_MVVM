@@ -274,7 +274,9 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="BOOSTER_DB.mdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

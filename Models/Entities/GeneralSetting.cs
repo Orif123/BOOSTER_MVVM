@@ -50,5 +50,9 @@ namespace Models.Entities
         public virtual ICollection<Amplifier> Amplifiers { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Log> Logs { get; set; }
+        public override string ToString()
+        {
+            return "Settings";
+        }
     }
 }

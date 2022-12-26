@@ -6,13 +6,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Entity;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace ViewModels.Services
 {
-    public static class ServiceDB
+    public static class ServiceDB 
     {
         public static int AddOrUpdate<T>(T entity) where T : class, IEntityWithId
         {
@@ -63,7 +61,6 @@ namespace ViewModels.Services
                 return 0;
             }
         }
-
         public static ObservableCollection<T> UpdateUI<T>(ObservableCollection<T> entityList) where T : class
         {
             using (BoosterEntities dbContext = new BoosterEntities())
@@ -81,11 +78,6 @@ namespace ViewModels.Services
                
                 return entityList;
             }
-        }
-        public static void UpdateLogs()
-        {
-            using (BoosterEntities dbContext = new BoosterEntities())
-                DB.Logs = new ObservableCollection<Log>(dbContext.GetLogs());
         }
         public static List<T> GetAll<T>() where T : class
         {

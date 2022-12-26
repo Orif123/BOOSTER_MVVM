@@ -313,7 +313,7 @@
                         </UniformGrid>
                         <UniformGrid Rows="1" Margin="0, 30" MaxWidth="400" MaxHeight="100">
                             <TextBlock Text="STATUS " FontSize="20"/>
-                            <ipack:PackIconMaterial Kind="Power" Foreground="{DynamicResource App.Brushes.Gray}" Width="24" Height="24" />
+                            <ipack:PackIconMaterial Kind="Power" Foreground="{Binding SelectedLog.TxMode, Converter={StaticResource BoolToColorConverter}, ConverterParameter={StaticResource App.Brushes.Green}}" Width="24" Height="24" />
                         </UniformGrid>
                     </StackPanel>
                     <StackPanel Grid.Column="1">

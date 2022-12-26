@@ -3,7 +3,6 @@ using LiveCharts.Wpf;
 using MahApps.Metro.Controls.Dialogs;
 using Models.DTO;
 using Models.Entities;
-using Models.Enums;
 using Models.Extensions;
 using Models.Interfaces;
 using System;
@@ -11,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Windows;
 using System.Windows.Data;
@@ -28,6 +28,7 @@ namespace ViewModels.ViewModels
         private BackgroundWorker savedata_worker;
         private BackgroundWorker pinger_worker;
         private BackgroundWorker graph_worker;
+        private BackgroundWorker command_worker;
         private bool _canSet;
         private bool _canSave;
 
@@ -101,9 +102,6 @@ namespace ViewModels.ViewModels
                 OnPropertyChanged(nameof(SelSetting));
             }
         }
-        
-
-
         public Graph Graph { get; set; }
         public RelayCommand Loaded { get; set; }
         public RelayCommand Unloaded { get; set; }
@@ -163,6 +161,8 @@ namespace ViewModels.ViewModels
             pinger_worker = new BackgroundWorker();
             pinger_worker.DoWork += Pinger_worker_DoWork;
             pinger_worker.ProgressChanged += Pinger_worker_ProgressChanged;
+            pinger_worker.RunWorkerCompleted += Pinger_worker_RunWorkerCompleted;
+            pinger_worker.WorkerSupportsCancellation = true;
 
             graph_worker = new BackgroundWorker();
             graph_worker.DoWork += Graph_worker_DoWork;
@@ -170,14 +170,16 @@ namespace ViewModels.ViewModels
             graph_worker.RunWorkerCompleted += Graph_worker_RunWorkerCompleted;
             graph_worker.WorkerReportsProgress = true;
             graph_worker.WorkerSupportsCancellation = true;
-            
-           
-            start_worker.RunWorkerAsync();
-            
-            
-            
-        }
 
+            command_worker = new BackgroundWorker();
+            command_worker.DoWork += Command_worker_DoWork;
+            command_worker.RunWorkerCompleted += Command_worker_RunWorkerCompleted;
+
+            start_worker.RunWorkerAsync();
+
+
+
+        }
         private void OnRemoveAmp(object parameter)
         {
             var id = (Guid)parameter;
@@ -197,7 +199,6 @@ namespace ViewModels.ViewModels
                 AmpCollection.Refresh();
             }
         }
-
         private void OnCancelChangeSet(object parameter)
         {
             ChangeSetVisibillity = Visibility.Collapsed;
@@ -205,28 +206,24 @@ namespace ViewModels.ViewModels
 
 
         }
-
         private void OnCancelNewAmp()
         {
             NewAmpVisibillity = Visibility.Collapsed;
             Graph.IsMainUnabled = true;
 
         }
-
         private void OnNewAmp(object parameter)
         {
             NewAmpVisibillity = Visibility.Visible;
             Graph.IsMainUnabled = false;
             SelectedAmplifier = new Amplifier();
         }
-
         private void OnChangeSet(object parameter)
         {
             ChangeSetVisibillity = Visibility.Visible;
             CanSet = true;
             Graph.IsMainUnabled = false;
         }
-
         private bool CanStartGraph()
         {
             return true;
@@ -244,7 +241,7 @@ namespace ViewModels.ViewModels
         }
         private void OnStartGraph(object parameter)
         {
-            Graph.Lables = new ObservableCollection<string>(DB.Logs.Where(p => p.AmplifierId.ToString() == SelectedAmplifier.ID.ToString()).ToList().OrderByDescending(p => p.CapturingDate.Value).Select(p => p.CapturingDate.Value.ToString("HH : mm")).ToList());
+            Graph.Lables = new ChartValues<string>(DB.Logs.Where(p => p.AmplifierId.ToString() == SelectedAmplifier.ID.ToString()).ToList().OrderByDescending(p => p.CapturingDate.Value).Select(p => p.CapturingDate.Value.ToString("HH : mm")).ToList());
             OnPropertyChanged(nameof(Graph.Lables));
             var detector = (string)parameter;
             if (!graph_worker.IsBusy && detector != null)
@@ -258,33 +255,32 @@ namespace ViewModels.ViewModels
             ServiceDB.UpdateUI(DB.Logs);
             OnPropertyChanged(nameof(Graph.Lables));
             counter = Graph.Lables.Count;
+            Graph.IsMainUnabled = false;
+            Graph.ShowGraph = Visibility.Visible;
             while (!worker.CancellationPending)
             {
                 var logList = DB.Logs.Where(p => p.AmplifierId.ToString() == SelectedAmplifier.ID.ToString()).ToList();
-                ServiceDB.UpdateUI(DB.Logs);
-                Graph.IsMainUnabled = false;
-                Graph.ShowGraph = Visibility.Visible;
                 switch (selectedDetector)
                 {
                     case nameof(Graph.RXP):
                         SelectedDetectorGraph = new ChartValues<double>(logList
-                            .OrderByDescending(p => p.CapturingDate.Value).Select(p => p.RxPower.Value));
+                            .OrderByDescending(p => p.CapturingDate.Value).Select(p => p.RxPower.Value).ToList());
                         break;
                     case nameof(Graph.RXS):
                         SelectedDetectorGraph = new ChartValues<double>(logList
-                            .OrderByDescending(p => p.CapturingDate.Value).Select(p => p.RxSensitivity.Value));
+                            .OrderByDescending(p => p.CapturingDate.Value).Select(p => p.RxSensitivity.Value).ToList());
                         break;
                     case nameof(Graph.TXP):
                         SelectedDetectorGraph = new ChartValues<double>(logList
-                            .OrderByDescending(p => p.CapturingDate.Value).Select(p => p.TxPower.Value));
+                            .OrderByDescending(p => p.CapturingDate.Value).Select(p => p.TxPower.Value).ToList());
                         break;
                     case nameof(Graph.TXS):
                         SelectedDetectorGraph = new ChartValues<double>(logList
-                            .OrderByDescending(p => p.CapturingDate.Value).Select(p => p.TxSensitivity.Value));
+                            .OrderByDescending(p => p.CapturingDate.Value).Select(p => p.TxSensitivity.Value).ToList());
                         break;
                     case nameof(Graph.TEMP):
                         SelectedDetectorGraph = new ChartValues<double>(logList
-                            .OrderByDescending(p => p.CapturingDate.Value).Select(p => p.TxSensitivity.Value));
+                            .OrderByDescending(p => p.CapturingDate.Value).Select(p => p.TxSensitivity.Value).ToList());
                         break;
                     default:
                         break;
@@ -293,6 +289,7 @@ namespace ViewModels.ViewModels
                 {
                     counter++;
                     Graph.Lables.Insert(0, DateTime.Now.ToString("HH : mm"));
+                    Thread.Sleep(500);
                     OnPropertyChanged(nameof(SelectedDetectorGraph));
                     OnPropertyChanged(nameof(Graph.Lables));
 
@@ -301,7 +298,6 @@ namespace ViewModels.ViewModels
                 //worker.ReportProgress(0, logList);
             }
         }
-
         private void Graph_worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             if (e.UserState != null)
@@ -312,52 +308,35 @@ namespace ViewModels.ViewModels
             if (e.Cancelled) { }
             if (e.Error != null)
                 ShowMessageAsync("ERROR", "Something went wrong on this proccess, please try again later", MessageDialogStyle.Affirmative);
-            SelectedDetectorGraph.Clear();
-            OnPropertyChanged(nameof(Graph.Lables));
-            OnPropertyChanged(nameof(SelectedDetectorGraph));
             counter = 0;
-            OnPropertyChanged(nameof(SelectedDetectorGraph));
             Graph.ShowGraph = Visibility.Collapsed;
             Graph.IsMainUnabled = true;
         }
-
-
-
         private void Pinger_worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            var tcp = new TCP();
-            BackgroundWorker worker = (BackgroundWorker)sender;
-            (new Thread(() =>
-            {
 
+            BackgroundWorker worker = (BackgroundWorker)sender;
+            while (true)
+            {
                 foreach (var item in DB.Amplifiers.Where(p => p.Enabled.Value))
                 {
-                    var feedback = tcp.Connect(item.IP, Convert.ToInt32(item.Port));
-                    worker.ReportProgress(0, new List<object> { feedback, item });
+                    var feedback = PingIP(item.IP);
+                    item.Pinging = feedback;
                 }
             }
-                )).Start();
         }
         private void Pinger_worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (e.UserState != null)
-            {
 
-                var list = (List<object>)e.UserState;
-                var feedback = (Status)list[0];
-                var amp = (Amplifier)list[1];
-                switch (feedback)
-                {
-                    case Status.OK:
-                        amp.Pinging = true;
-                        break;
-                    default:
-                        amp.Pinging = false;
-                        break;
-                }
-            }
         }
-
+        private void Pinger_worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+                Console.Write(String.Format("OH NO!!! PING BGW {0}", e.Error.Message));
+            foreach (var item in Amplifiers)
+                item.Pinging = false;
+            pinger_worker.RunWorkerAsync();
+        }
         private void Savedata_worker_DoWork(object sender, DoWorkEventArgs e)
         {
             var entity = (IEntityWithId)e.Argument;
@@ -381,6 +360,7 @@ namespace ViewModels.ViewModels
                     SelectedAmplifier.ID = Guid.NewGuid();
                     SelectedAmplifier.SettingId = DB.Settings.SingleOrDefault().ID;
                     numberEntities = ServiceDB.AddOrUpdate(SelectedAmplifier);
+                    entity = SelectedAmplifier;
                 }
                 else
                     ShowMessageAsync("ERROR", "DATA CANNOT BE EMPTY", MessageDialogStyle.Affirmative);
@@ -392,7 +372,6 @@ namespace ViewModels.ViewModels
                 entity
             };
         }
-
         private void Savedata_worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             var list = (List<object>)e.Result;
@@ -400,7 +379,7 @@ namespace ViewModels.ViewModels
             var entity = (IEntityWithId)list[1];
 
             if (resultNum > 0)
-                ShowMessageAsync("Succeeded", String.Format("{0} Saved {1} changes succesfully to the Database", entity, resultNum), MessageDialogStyle.Affirmative);
+                ShowMessageAsync("Succeeded", String.Format("{0} Saved {1} changes succesfully to the Database", entity.ToString(), resultNum), MessageDialogStyle.Affirmative);
             else
                 ShowMessageAsync("Failed", "No changes saved to the database", MessageDialogStyle.Affirmative);
             ServiceDB.UpdateUI(Amplifiers);
@@ -408,13 +387,8 @@ namespace ViewModels.ViewModels
             OnPropertyChanged(nameof(SelectedAmplifier.IP));
 
         }
-
-
         private void Start_worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            var list = (List<object>)e.Argument;
-            var amp = (Amplifier)list[0];
-            var header = (string)list[1];
             var tcp = new TCP();
             BackgroundWorker worker = sender as BackgroundWorker;
             Queue<double> queueRxPower = new Queue<double>();
@@ -422,10 +396,11 @@ namespace ViewModels.ViewModels
             Queue<double> queueTxPower = new Queue<double>();
             Queue<double> queueTxsens = new Queue<double>();
             Queue<double> queueTemp = new Queue<double>();
-            var feedbackConnect = tcp.Connect(amp.IP, Convert.ToInt32(amp.Port));
-            switch (feedbackConnect)
+
+
+            switch (true)
             {
-                case Status.OK:
+                case true:
                     {
                         if (worker.CancellationPending)
                         {
@@ -435,11 +410,15 @@ namespace ViewModels.ViewModels
                         }
                         else
                         {
-                            if (header == "#GS")
+
+
+                            do
                             {
-                                do
+                                foreach (var amp in Amplifiers.Where(p => !p.Pinging).ToList())
                                 {
-                                    string feed = tcp.SendCommand(header);
+
+                                    var feedbackConnect = tcp.Connect(amp.IP, Convert.ToInt32(amp.Port));
+                                    string feed = tcp.SendCommand("#GS");
                                     if (feed.Contains("Tx"))
                                     {
                                         var chunks = feed.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
@@ -461,22 +440,11 @@ namespace ViewModels.ViewModels
                                         {
                                             amp.SelFilter = (Filter)filValue;
                                         }
-                                        worker.ReportProgress(0, amp);
+                                        //worker.ReportProgress(0, amp);
 
                                     }
-                                } while (!e.Cancel);
-                            }
-                            if ((header.Contains("#SF") && SelectedAmplifier.Running) || header == "#TXON" || header == "#TXOFF")
-                            {
-                                var feed = tcp.SendCommand(header);
-                                if (!feed.Contains("Failed"))
-                                    e.Result = feed;
-                                else
-                                {
-                                    break;
                                 }
-                                tcp.Disconnect();
-                            }
+                            } while (!e.Cancel);
 
                         }
                     }
@@ -514,50 +482,65 @@ namespace ViewModels.ViewModels
             if (e.Cancelled) { }
             if (e.Error != null)
                 ShowMessageAsync("ERROR", "Something went wrong on this proccess, please try again later", MessageDialogStyle.Affirmative);
-            else
+
+        }
+        private void Command_worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            var feedback = (string)e.Result;
+            if (!String.IsNullOrEmpty(feedback))
             {
-                var feedback = (string)e.Result;
 
-                if (feedback != null)
+                if (feedback.Contains("On"))
+                    SelectedAmplifier.Running = true;
+                if (feedback.Contains("Off"))
+                    SelectedAmplifier.Running = false;
+                if (feedback.Contains("Succesfully"))
                 {
-
-                    if (feedback.Contains("On"))
-                        SelectedAmplifier.Running = true;
-                    if (feedback.Contains("Off"))
-                        SelectedAmplifier.Running = false;
-                    if (feedback.Contains("Succesfully"))
-                    {
-                        var filter = int.TryParse(feedback.Substring(7, 1), out int value);
-                        SelectedAmplifier.SelFilter = (Filter)value;
-                        ShowMessageAsync("SET FILTER", feedback, MessageDialogStyle.Affirmative);
-                    }
+                    var filter = int.TryParse(feedback.Substring(7, 1), out int value);
+                    SelectedAmplifier.SelFilter = (Filter)value;
+                    ShowMessageAsync("SET FILTER", feedback, MessageDialogStyle.Affirmative);
                 }
-                else
-                    ShowMessageAsync("ERROR", "Unable To Connect To The Device", MessageDialogStyle.Affirmative);
+            }
+            else
+                ShowMessageAsync("ERROR", "UNABLE TO CONNECT TO THE DEVICE", MessageDialogStyle.Affirmative);
 
+
+        }
+        private void Command_worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var tcp = new TCP();
+            if ((List<object>)e.Argument != null)
+            {
+                var list = (List<object>)e.Argument;
+                var amp = (Amplifier)list[0];
+                var header = (string)list[1];
+                if ((header.Contains("#SF") && SelectedAmplifier.Running) || header == "#TXON" || header == "#TXOFF")
+                {
+                    var feed = tcp.SendCommand(header);
+                    if (!feed.Contains("Failed"))
+                        e.Result = feed;
+
+                    tcp.Disconnect();
+                }
             }
         }
-
-
         private void OnUnloaded()
         {
             if (pinger_worker.IsBusy)
                 pinger_worker.CancelAsync();
         }
-
         private void OnLoaded(object parameter)
         {
-          
+
             ServiceDB.UpdateUI(Amplifiers);
-            //if (!pinger_worker.IsBusy)
-            //    pinger_worker.RunWorkerAsync();
+            if (!pinger_worker.IsBusy)
+                pinger_worker.RunWorkerAsync();
 
         }
         private bool CanSaveData()
         {
             return true;
         }
-
         private void OnSaveData(object parameter)
         {
             if (parameter != null)
@@ -569,39 +552,33 @@ namespace ViewModels.ViewModels
             else
                 savedata_worker.RunWorkerAsync();
         }
-
         private void OnTxOff(object parameter)
         {
             var amplifier = SelectedAmplifier;
             if (amplifier != null)
-                start_worker.RunWorkerAsync(new List<object> { amplifier, "#TXOFF" });
+                command_worker.RunWorkerAsync(new List<object> { amplifier, "#TXOFF" });
         }
-
         private void OnTxOn(object parameter)
         {
 
             var amplifier = SelectedAmplifier;
             if (amplifier != null)
-                start_worker.RunWorkerAsync(new List<object> { amplifier, "#TXON" });
+                command_worker.RunWorkerAsync(new List<object> { amplifier, "#TXON" });
         }
-
         private bool CanSetFilter()
         {
             return SelectedAmplifier.Enabled.Value;
         }
-
         private void OnSetFilter(object parameter)
         {
 
             var amplifier = SelectedAmplifier;
             if (amplifier != null)
-                start_worker.RunWorkerAsync(new List<object> { amplifier, $"#SF{(int)amplifier.SelFilter}" });
+                command_worker.RunWorkerAsync(new List<object> { amplifier, $"#SF{(int)amplifier.SelFilter}" });
         }
-
         private void OnStopAmplifier()
         {
         }
-
         private void OnStartAmplifier(object parameter)
         {
             var amplifier = SelectedAmplifier;
@@ -625,6 +602,33 @@ namespace ViewModels.ViewModels
             foreach (var item in queue)
                 result += item;
             return Math.Round(result / index, 2);
+        }
+        private bool PingIP(string ip)
+        {
+            Thread.Sleep(200);
+            try
+            {
+                if (NetworkInterface.GetIsNetworkAvailable())
+                {
+                    PingReply pingreply = new Ping().Send(ip, 10);
+                    if (pingreply != null && pingreply.Status == IPStatus.Success)
+                        return true;
+                    else
+                        return false;
+                }
+                else
+                    return false;
+            }
+            catch (Win32Exception)
+            {
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
         }
     }
 }

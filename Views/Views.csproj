@@ -233,6 +233,9 @@
     <Reference Include="MindFusion.Zip, Version=1.0.1.450, Culture=neutral, PublicKeyToken=dd7449df9ffcc455, processorArchitecture=MSIL">
       <HintPath>..\packages\MindFusion.Diagramming.Wpf.3.8.3\lib\net45\MindFusion.Zip.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -266,6 +269,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\BoolToColorConverter.cs" />
+    <Compile Include="Converters\FilterNumberToPolygonColorConverter.cs" />
     <Compile Include="Viewes\BoosterView.xaml.cs">
       <DependentUpon>BoosterView.xaml</DependentUpon>
     </Compile>
@@ -378,6 +382,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\kturh 2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

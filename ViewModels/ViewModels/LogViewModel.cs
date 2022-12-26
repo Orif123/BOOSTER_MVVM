@@ -132,7 +132,7 @@ namespace ViewModels.ViewModels
                     var dataToAdd = DB.Logs.SingleOrDefault(P => P.ID == item.ID);
                     currentListLogs.Add(dataToAdd);
                 }
-                Graph.Lables = new ObservableCollection<string>(currentListLogs.OrderBy(p => p.CapturingDate.Value).Select(p => p.CapturingDate.Value.ToString("HH : mm")));
+                Graph.Lables = new ChartValues<string>(currentListLogs.OrderBy(p => p.CapturingDate.Value).Select(p => p.CapturingDate.Value.ToString("HH : mm")));
                 Graph.RXP = new ChartValues<double>(currentListLogs.Select(P => P.RxPower.Value));
                 Graph.RXS = new ChartValues<double>(currentListLogs.Select(P => P.RxSensitivity.Value));
                 Graph.TXP = new ChartValues<double>(currentListLogs.Select(P => P.TxPower.Value));
@@ -204,7 +204,7 @@ namespace ViewModels.ViewModels
                         if (parameter != null)
                         {
                             var id = (Guid)parameter;
-                            var singleLog = (Models.Entities.Log)currentListLogs.SingleOrDefault(P => P.ID.ToString() == id.ToString());
+                            var singleLog = (Log)currentListLogs.SingleOrDefault(P => P.ID.ToString() == id.ToString());
                             info = new UTF8Encoding(true).GetBytes(singleLog.ToCSV(SelectedAmplifier.Name));
                             fs.Write(info, 0, info.Length);
 
@@ -261,10 +261,7 @@ namespace ViewModels.ViewModels
         public ICollectionView AmpCollection { get; }
         public ObservableCollection<LogPresentor> Logs
         {
-            get
-            {
-                return _logs;
-            }
+            get => _logs;
             set
             {
                 _logs = value;

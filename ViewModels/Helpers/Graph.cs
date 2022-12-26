@@ -62,7 +62,13 @@ namespace ViewModels.Helpers
                 OnPropertyChanged(nameof(ShowGraph));
             }
         }
-        public ObservableCollection<string> Lables { get; set; }
+        private ChartValues<string> _lables;
+
+        public ChartValues<string> Lables
+        {
+            get { return _lables; }
+            set { _lables = value; OnPropertyChanged(nameof(Lables)); }
+        }
         private bool _isMainEnabled = true;
 
         public bool IsMainUnabled

@@ -31,6 +31,7 @@ namespace ViewModels.Services
             _timeInSeconds = timeInSeconds;
             _logger = logger;
             _collection = collection;
+
             dt = new DispatcherTimer(DispatcherPriority.Normal);
             dt.Interval = new TimeSpan(0, 0, (int)timeInSeconds);
             dt.Tick += Dt_Tick;
@@ -72,25 +73,28 @@ namespace ViewModels.Services
 
         private void Dt_Tick(object sender, EventArgs e)
         {
-
-            foreach (var amp in DB.Amplifiers.Where(p => !p.Pinging && p.Enabled.Value))
+            if (DB.Amplifiers.Any(P => P.Pinging))
             {
-                var log = new Log()
+
+                foreach (var amp in DB.Amplifiers.Where(p => p.Pinging && p.Enabled.Value))
                 {
-                    CapturingDate = DateTime.Now,
-                    RxPower = amp.RxPower,
-                    RxSensitivity = amp.RxSensitivity,
-                    TxPower = amp.TxPower,
-                    TxSensitivity = amp.TxSensitivity,
-                    Temprature = amp.Temprature,
-                    AmplifierId = amp.ID,
-                    UserId = DB.Users.FirstOrDefault(P => P.IsConnected.Value).ID,
-                    SelectedFilter = (int)amp.SelFilter,
-                    TxMode = amp.TxMode
-                };
-                ServiceDB.AddOrUpdate(log);
+                    var log = new Log()
+                    {
+                        CapturingDate = DateTime.Now,
+                        RxPower = amp.RxPower,
+                        RxSensitivity = amp.RxSensitivity,
+                        TxPower = amp.TxPower,
+                        TxSensitivity = amp.TxSensitivity,
+                        Temprature = amp.Temprature,
+                        AmplifierId = amp.ID,
+                        UserId = DB.Users.FirstOrDefault(P => P.IsConnected.Value).ID,
+                        SelectedFilter = (int)amp.SelFilter,
+                        TxMode = amp.TxMode
+                    };
+                    ServiceDB.AddOrUpdate(log);
+                }
+                OnUpdateLogs?.Invoke();
             }
-            OnUpdateLogs?.Invoke();
         }
         private void OnStop(object parameter)
         {

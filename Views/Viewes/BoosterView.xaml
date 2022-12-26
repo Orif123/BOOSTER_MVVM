@@ -12,6 +12,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <local1:BoolToColorConverter x:Key="BoolToColorConverter"/>
+        <local1:FilterNumberToPolygonColorConverter x:Key="FilterNumberToPolygonColorConverter"/>
     </UserControl.Resources>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -21,17 +22,13 @@
             <i:InvokeCommandAction Command="{Binding Unloaded}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="2*"/>
-        </Grid.ColumnDefinitions>
+    
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.5*"/>
-                <ColumnDefinition Width="4*"/>
-                
-            </Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
             <ListView Grid.Column="0" Margin="5,5, 0, 5" IsHitTestVisible="{Binding Graph.IsMainUnabled}" ItemsSource="{Binding Amplifiers}" SelectedItem="{Binding SelectedAmplifier}" >
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -66,7 +63,7 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <Border Grid.Column="1" Height="500" Width="700" BorderBrush="Black" BorderThickness="2" Panel.ZIndex="1" Background="{DynamicResource MahApps.Brushes.Badged.Background.Disabled}"  Visibility="{Binding Graph.ShowGraph}">
+            <Border Grid.Column="1" Height="500" Width="700" BorderBrush="Black" BorderThickness="2" Panel.ZIndex="1" Background="{DynamicResource MahApps.Brushes.Gray8}"  Visibility="{Binding Graph.ShowGraph}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition/>
@@ -98,7 +95,7 @@
                         </ChartToolKit:CartesianChart.AxisY>
                     </ChartToolKit:CartesianChart>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2">
-                        <Button Style="{DynamicResource MahApps.Styles.Button}" Height="50" Width="100"  Background="{DynamicResource App.Brushes.Red}" Command="{Binding CancelGraph}" CommandParameter="{Binding ElementName=chart}" Content="BACK"/>
+                        <Button Style="{DynamicResource MahApps.Styles.Button}" Height="50" Width="100"   Command="{Binding CancelGraph}" CommandParameter="{Binding ElementName=chart}" Content="BACK"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -289,8 +286,39 @@
                         </StackPanel>-->
                         <StackPanel  Margin="0, 60">
                             <Canvas>
-                                   
+                                    <StackPanel Canvas.Top="114" Canvas.Left="442" Panel.ZIndex="1">
 
+                                        <Line X1="0" Y1="0" X2="15" Y2="0" Stroke="{Binding SelectedAmplifier.SelFilter, Converter={StaticResource FilterNumberToPolygonColorConverter}, ConverterParameter=0 }" StrokeThickness="3.2" />
+
+                                    </StackPanel>
+                                    <Line X1="100" Y1="0" Canvas.Top="115" Canvas.Left="356" X2="100" Y2="34" Stroke="{Binding SelectedAmplifier.SelFilter, Converter={StaticResource FilterNumberToPolygonColorConverter}, ConverterParameter=0 }" StrokeThickness="3.2" />
+                                    <StackPanel Canvas.Top="47" Canvas.Left="454" Panel.ZIndex="1">
+
+                                        <Line X1="0" Y1="0" X2="51" Y2="0" Stroke="{Binding SelectedAmplifier.SelFilter, Converter={StaticResource FilterNumberToPolygonColorConverter}, ConverterParameter=1 }" StrokeThickness="3.2" />
+
+                                    </StackPanel>
+                                    <StackPanel Canvas.Top="63" Canvas.Left="442" Panel.ZIndex="1">
+
+                                        <Line X1="0" Y1="0" X2="15" Y2="0" Stroke="{Binding SelectedAmplifier.SelFilter, Converter={StaticResource FilterNumberToPolygonColorConverter}, ConverterParameter=1 }" StrokeThickness="3.2" />
+
+                                    </StackPanel>
+                                    <Line X1="100" Y1="0" Canvas.Top="47" Canvas.Left="356" X2="100" Y2="17" Stroke="{Binding SelectedAmplifier.SelFilter, Converter={StaticResource FilterNumberToPolygonColorConverter}, ConverterParameter=1 }" StrokeThickness="3.2" />
+
+                                    <StackPanel Canvas.Top="96" Canvas.Left="440" Panel.ZIndex="1">
+
+                                        <Line X1="0" Y1="0" X2="60" Y2="0" Stroke="{Binding SelectedAmplifier.SelFilter, Converter={StaticResource FilterNumberToPolygonColorConverter}, ConverterParameter=3 }" StrokeThickness="3.2" />
+                                    
+                                    </StackPanel>
+                                    <StackPanel Canvas.Top="80" Canvas.Left="442" Panel.ZIndex="1">
+
+                                        <Line X1="0" Y1="0" X2="67" Y2="0" Stroke="{Binding SelectedAmplifier.SelFilter, Converter={StaticResource FilterNumberToPolygonColorConverter}, ConverterParameter=2 }" StrokeThickness="3.2" />
+
+                                    </StackPanel>
+                                    <StackPanel Canvas.Top="148" Canvas.Left="457" Panel.ZIndex="1">
+
+                                        <Line X1="0" Y1="0" X2="48" Y2="0" Stroke="{Binding SelectedAmplifier.SelFilter, Converter={StaticResource FilterNumberToPolygonColorConverter}, ConverterParameter=0 }" StrokeThickness="3.2" />
+
+                                    </StackPanel>
                                     <Image Source="/Assets/kturh 2.png" Height="550" Width="700" Margin="-60">
                                         
                                     </Image>
@@ -488,8 +516,8 @@
                     </Grid>
                 </Grid>
             </Border>
-        </Grid>
-        <Grid Grid.Column="2" Height="auto" Width="auto" IsHitTestVisible="{Binding Graph.IsMainUnabled}">
+        
+        <Grid Grid.Column="2"  Height="auto" Width="auto"  IsHitTestVisible="{Binding Graph.IsMainUnabled}">
             <Border Background="{DynamicResource MahApps.Brushes.Menu.Background}" Margin="5,5, 0, 5" >
                 <StackPanel>
                     <TextBlock Text="Amplifier Settings" FontWeight="DemiBold" HorizontalAlignment="Stretch" FontFamily="Vrinda" VerticalAlignment="Stretch" TextAlignment="Center" FontSize="58"/>
